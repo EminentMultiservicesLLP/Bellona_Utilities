@@ -1,0 +1,457 @@
+2024-05-13 22:00:38,599 [12] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-13 22:00:38,612 [12] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-13 22:00:38,639 [12] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-13 22:00:38,640 [12] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-13 22:00:38,650 [11] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-13 22:00:38,653 [11] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-13 22:00:38,653 [11] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:00:38,654 [11] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-13 22:00:38,655 [11] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-13 22:00:38,732 [11] ERROR ScannerAPI.Logging -           Failed while Extracting image from PDF 
+ PDF header signature not found. 
+    at iTextSharp.text.pdf.PdfReader..ctor(ReaderProperties properties, IRandomAccessSource byteSource)
+   at ScannerAPI.Controllers.ExtractText_PDF.ExtractImages(Stream PDFSourcePath) in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\ExtractText_PDF.cs:line 40
+2024-05-13 22:00:38,753 [11] ERROR ScannerAPI.Logging -   Failed API Call. 
+ PDF header signature not found. 
+    at ScannerAPI.Controllers.ExtractText_PDF.SaveImages(Stream pdfStream, String name, String outputPath, String tessdataPath) in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\ExtractText_PDF.cs:line 140
+   at ScannerAPI.Controllers.HomeController.<ProcessScannedDocument>d__5.MoveNext() in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\HomeController.cs:line 58
+2024-05-13 22:02:11,270 [10] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-13 22:02:13,605 [10] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-13 22:02:13,624 [10] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-13 22:02:13,624 [10] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-13 22:02:13,624 [10] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-13 22:02:13,625 [10] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-13 22:02:13,625 [10] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:02:13,626 [10] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-13 22:02:13,626 [10] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-13 22:02:13,671 [10] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-13 22:02:13,851 [10] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-13 22:02:13,852 [10] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-13 22:02:13,852 [10] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:02:13,852 [10] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-13 22:02:13,874 [10] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-13 22:02:14,974 [10] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-13 22:02:14,974 [10] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-13 22:02:14,976 [10] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-13 22:02:15,004 [10] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-13 22:02:15,004 [10] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-13 22:02:15,006 [10] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language
+2024-05-13 22:02:15,568 [10] INFO  ScannerAPI.Logging -               Setting Tesseract Whitelist & Blacklist variable before extract text
+2024-05-13 22:02:15,569 [10] INFO  ScannerAPI.Logging -                   Load of the image file from the Pix object which is a wrapper for Leptonica PIX structure
+2024-05-13 22:02:15,594 [10] INFO  ScannerAPI.Logging -                   process the specified image
+2024-05-13 22:02:15,601 [10] INFO  ScannerAPI.Logging -                   Gets the image's content as plain text
+2024-05-13 22:02:16,786 [10] INFO  ScannerAPI.Logging -                   Completed extract image as plain text
+2024-05-13 22:02:16,796 [10] INFO  ScannerAPI.Logging -                  Completed ExtractText method
+2024-05-13 22:02:16,796 [10] INFO  ScannerAPI.Logging -       Completed Text Extract process from image file saved
+2024-05-13 22:02:16,796 [10] INFO  ScannerAPI.Logging -   Completed Read PDF content
+2024-05-13 22:02:16,796 [10] INFO  ScannerAPI.Logging - Call successfully completed, Returning PDF content to the caller
+2024-05-13 22:02:16,880 [10] ERROR ScannerAPI.Logging -   Failed API Call. 
+ Access to the path 'C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Output' is denied. 
+    at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share, Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, String msgPath, Boolean bFromProxy, Boolean useLongPath, Boolean checkHost)
+   at System.IO.StreamWriter.CreateFile(String path, Boolean append, Boolean checkHost)
+   at System.IO.StreamWriter..ctor(String path, Boolean append, Encoding encoding, Int32 bufferSize, Boolean checkHost)
+   at System.IO.StreamWriter..ctor(String path)
+   at ScannerAPI.Controllers.HomeController.<ProcessScannedDocument>d__5.MoveNext() in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\HomeController.cs:line 70
+2024-05-13 22:02:50,873 [10] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-13 22:02:53,604 [10] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-13 22:02:53,989 [10] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-13 22:02:55,398 [10] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-13 22:02:57,459 [10] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-13 22:02:57,698 [10] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-13 22:02:57,698 [10] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:02:57,698 [10] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-13 22:02:57,698 [10] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-13 22:02:57,698 [10] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-13 22:02:57,833 [10] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-13 22:02:57,833 [10] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-13 22:02:57,833 [10] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:02:57,833 [10] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-13 22:02:57,854 [10] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-13 22:02:58,946 [10] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-13 22:02:58,946 [10] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-13 22:02:58,946 [10] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-13 22:02:58,988 [10] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-13 22:02:58,988 [10] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-13 22:02:58,988 [10] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language
+2024-05-13 22:02:59,123 [10] INFO  ScannerAPI.Logging -               Setting Tesseract Whitelist & Blacklist variable before extract text
+2024-05-13 22:02:59,123 [10] INFO  ScannerAPI.Logging -                   Load of the image file from the Pix object which is a wrapper for Leptonica PIX structure
+2024-05-13 22:02:59,146 [10] INFO  ScannerAPI.Logging -                   process the specified image
+2024-05-13 22:02:59,154 [10] INFO  ScannerAPI.Logging -                   Gets the image's content as plain text
+2024-05-13 22:03:00,307 [10] INFO  ScannerAPI.Logging -                   Completed extract image as plain text
+2024-05-13 22:03:00,318 [10] INFO  ScannerAPI.Logging -                  Completed ExtractText method
+2024-05-13 22:03:00,318 [10] INFO  ScannerAPI.Logging -       Completed Text Extract process from image file saved
+2024-05-13 22:03:04,433 [10] INFO  ScannerAPI.Logging -   Completed Read PDF content
+2024-05-13 22:03:05,004 [10] INFO  ScannerAPI.Logging - Call successfully completed, Returning PDF content to the caller
+2024-05-13 22:04:17,428 [13] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-13 22:04:26,730 [13] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-13 22:04:26,752 [13] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-13 22:04:26,752 [13] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-13 22:04:26,752 [13] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-13 22:04:26,753 [13] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-13 22:04:26,753 [13] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:04:26,753 [13] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-13 22:04:26,755 [13] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-13 22:04:26,800 [13] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-13 22:04:26,972 [13] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-13 22:04:26,972 [13] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-13 22:04:26,972 [13] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:04:26,972 [13] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-13 22:04:26,994 [13] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-13 22:04:27,962 [13] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-13 22:04:27,962 [13] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-13 22:04:27,962 [13] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-13 22:04:27,985 [13] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-13 22:04:27,985 [13] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-13 22:04:27,985 [13] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language
+2024-05-13 22:04:28,470 [13] INFO  ScannerAPI.Logging -               Setting Tesseract Whitelist & Blacklist variable before extract text
+2024-05-13 22:04:28,471 [13] INFO  ScannerAPI.Logging -                   Load of the image file from the Pix object which is a wrapper for Leptonica PIX structure
+2024-05-13 22:04:28,488 [13] INFO  ScannerAPI.Logging -                   process the specified image
+2024-05-13 22:04:28,495 [13] INFO  ScannerAPI.Logging -                   Gets the image's content as plain text
+2024-05-13 22:04:29,339 [13] INFO  ScannerAPI.Logging -                   Completed extract image as plain text
+2024-05-13 22:04:29,347 [13] INFO  ScannerAPI.Logging -                  Completed ExtractText method
+2024-05-13 22:04:29,347 [13] INFO  ScannerAPI.Logging -       Completed Text Extract process from image file saved
+2024-05-13 22:04:29,347 [13] INFO  ScannerAPI.Logging -   Completed Read PDF content
+2024-05-13 22:04:29,347 [13] INFO  ScannerAPI.Logging - Call successfully completed, Returning PDF content to the caller
+2024-05-13 22:05:43,895 [12] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-13 22:05:45,146 [12] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-13 22:05:45,168 [12] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-13 22:05:45,168 [12] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-13 22:05:45,177 [11] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-13 22:05:45,179 [11] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-13 22:05:45,179 [11] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:05:45,180 [11] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-13 22:05:45,181 [11] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-13 22:05:45,241 [11] ERROR ScannerAPI.Logging -           Failed while Extracting image from PDF 
+ PDF header signature not found. 
+    at iTextSharp.text.pdf.PdfReader..ctor(ReaderProperties properties, IRandomAccessSource byteSource)
+   at ScannerAPI.Controllers.ExtractText_PDF.ExtractImages(Stream PDFSourcePath) in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\ExtractText_PDF.cs:line 40
+2024-05-13 22:05:45,262 [11] ERROR ScannerAPI.Logging -   Failed API Call. 
+ PDF header signature not found. 
+    at ScannerAPI.Controllers.ExtractText_PDF.SaveImages(Stream pdfStream, String name, String outputPath, String tessdataPath) in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\ExtractText_PDF.cs:line 140
+   at ScannerAPI.Controllers.HomeController.<ProcessScannedDocument>d__5.MoveNext() in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\HomeController.cs:line 58
+2024-05-13 22:06:02,684 [12] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-13 22:06:04,195 [12] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-13 22:06:04,198 [12] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-13 22:06:04,198 [12] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-13 22:06:04,201 [11] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-13 22:06:04,201 [11] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-13 22:06:04,201 [11] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:06:04,201 [11] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-13 22:06:04,201 [11] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-13 22:06:04,208 [11] ERROR ScannerAPI.Logging -           Failed while Extracting image from PDF 
+ PDF header signature not found. 
+    at iTextSharp.text.pdf.PdfReader..ctor(ReaderProperties properties, IRandomAccessSource byteSource)
+   at ScannerAPI.Controllers.ExtractText_PDF.ExtractImages(Stream PDFSourcePath) in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\ExtractText_PDF.cs:line 40
+2024-05-13 22:06:04,224 [11] ERROR ScannerAPI.Logging -   Failed API Call. 
+ PDF header signature not found. 
+    at ScannerAPI.Controllers.ExtractText_PDF.SaveImages(Stream pdfStream, String name, String outputPath, String tessdataPath) in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\ExtractText_PDF.cs:line 140
+   at ScannerAPI.Controllers.HomeController.<ProcessScannedDocument>d__5.MoveNext() in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\HomeController.cs:line 58
+2024-05-13 22:06:23,690 [12] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-13 22:06:25,473 [12] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-13 22:06:25,480 [12] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-13 22:06:25,480 [12] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-13 22:06:28,707 [12] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-13 22:06:28,915 [12] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-13 22:06:28,915 [12] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:06:28,915 [12] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-13 22:06:28,915 [12] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-13 22:06:28,927 [12] ERROR ScannerAPI.Logging -           Failed while Extracting image from PDF 
+ PDF header signature not found. 
+    at iTextSharp.text.pdf.PdfReader..ctor(ReaderProperties properties, IRandomAccessSource byteSource)
+   at ScannerAPI.Controllers.ExtractText_PDF.ExtractImages(Stream PDFSourcePath) in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\ExtractText_PDF.cs:line 40
+2024-05-13 22:07:01,445 [10] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-13 22:07:04,867 [10] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-13 22:07:04,885 [10] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-13 22:07:04,885 [10] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-13 22:07:04,886 [10] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-13 22:07:04,886 [10] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-13 22:07:04,886 [10] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:07:04,887 [10] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-13 22:07:04,887 [10] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-13 22:07:04,933 [10] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-13 22:07:05,121 [10] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-13 22:07:05,121 [10] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-13 22:07:05,121 [10] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:07:05,121 [10] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-13 22:07:05,141 [10] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-13 22:07:06,231 [10] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-13 22:07:06,231 [10] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-13 22:07:06,233 [10] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-13 22:07:06,282 [10] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-13 22:07:06,283 [10] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-13 22:07:06,283 [10] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language
+2024-05-13 22:07:06,745 [10] INFO  ScannerAPI.Logging -               Setting Tesseract Whitelist & Blacklist variable before extract text
+2024-05-13 22:07:06,746 [10] INFO  ScannerAPI.Logging -                   Load of the image file from the Pix object which is a wrapper for Leptonica PIX structure
+2024-05-13 22:07:06,776 [10] INFO  ScannerAPI.Logging -                   process the specified image
+2024-05-13 22:07:06,785 [10] INFO  ScannerAPI.Logging -                   Gets the image's content as plain text
+2024-05-13 22:07:07,945 [10] INFO  ScannerAPI.Logging -                   Completed extract image as plain text
+2024-05-13 22:07:07,956 [10] INFO  ScannerAPI.Logging -                  Completed ExtractText method
+2024-05-13 22:07:07,956 [10] INFO  ScannerAPI.Logging -       Completed Text Extract process from image file saved
+2024-05-13 22:07:07,956 [10] INFO  ScannerAPI.Logging -   Completed Read PDF content
+2024-05-13 22:07:07,956 [10] INFO  ScannerAPI.Logging - Call successfully completed, Returning PDF content to the caller
+2024-05-13 22:09:16,976 [12] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-13 22:09:18,556 [12] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-13 22:09:18,575 [12] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-13 22:09:18,575 [12] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-13 22:09:23,113 [12] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-13 22:09:29,558 [12] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-13 22:09:30,102 [12] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-13 22:09:32,821 [12] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-13 22:09:32,822 [12] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-13 22:09:32,875 [12] ERROR ScannerAPI.Logging -           Failed while Extracting image from PDF 
+ PDF header signature not found. 
+    at iTextSharp.text.pdf.PdfReader..ctor(ReaderProperties properties, IRandomAccessSource byteSource)
+   at ScannerAPI.Controllers.ExtractText_PDF.ExtractImages(Stream PDFSourcePath) in C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Controllers\ExtractText_PDF.cs:line 40
+2024-05-14 01:24:11,149 [11] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-14 01:24:13,869 [11] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-14 01:24:13,923 [11] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-14 01:24:13,924 [11] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-14 01:24:15,670 [11] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-14 01:24:15,675 [11] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-14 01:24:15,676 [11] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-14 01:24:15,677 [11] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-14 01:24:15,679 [11] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-14 01:24:15,757 [11] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-14 01:24:16,108 [11] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-14 01:24:16,108 [11] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-14 01:24:16,108 [11] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-14 01:24:16,108 [11] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-14 01:24:16,140 [11] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-14 01:24:19,816 [11] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-14 01:24:19,817 [11] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-14 01:24:19,820 [11] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-14 01:24:19,905 [11] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 01:24:19,905 [11] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 01:24:19,908 [11] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language
+2024-05-14 02:38:29,502 [12] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-14 02:38:32,494 [12] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-14 02:38:32,553 [12] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-14 02:38:32,554 [12] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-14 02:38:33,606 [12] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-14 02:38:33,613 [12] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-14 02:38:33,613 [12] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-14 02:38:33,615 [12] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-14 02:38:33,616 [12] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-14 02:38:33,720 [12] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-14 02:38:34,061 [12] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-14 02:38:34,062 [12] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-14 02:38:34,062 [12] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-14 02:38:34,062 [12] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-14 02:38:34,092 [12] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-14 02:38:37,720 [12] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-14 02:38:37,721 [12] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-14 02:38:37,724 [12] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-14 02:38:37,817 [12] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 02:38:37,817 [12] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 02:38:37,819 [12] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\tessdata
+2024-05-14 02:54:56,567 [11] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-14 02:54:58,749 [11] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-14 02:54:58,797 [11] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-14 02:54:58,797 [11] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-14 02:54:59,754 [11] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-14 02:54:59,757 [11] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-14 02:54:59,757 [11] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-14 02:54:59,759 [11] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-14 02:54:59,760 [11] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-14 02:54:59,855 [11] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-14 02:55:00,307 [11] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-14 02:55:00,307 [11] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-14 02:55:00,307 [11] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-14 02:55:00,307 [11] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-14 02:55:00,340 [11] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-14 02:55:04,314 [11] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-14 02:55:04,314 [11] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-14 02:55:04,314 [11] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-14 02:55:04,410 [11] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 02:55:04,410 [11] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 02:55:04,413 [11] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language :C:\temp\tessdata
+2024-05-14 10:11:31,254 [11] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-14 10:11:35,137 [11] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-14 10:11:35,159 [11] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-14 10:11:35,159 [11] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-14 10:11:49,690 [10] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-14 10:11:49,880 [10] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-14 10:11:49,880 [10] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:11:49,881 [10] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-14 10:11:49,882 [10] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-14 10:11:49,926 [10] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-14 10:11:50,102 [10] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-14 10:11:50,102 [10] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-14 10:11:50,102 [10] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:11:50,102 [10] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-14 10:11:50,123 [10] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-14 10:11:51,007 [10] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-14 10:11:51,007 [10] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-14 10:11:51,009 [10] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-14 10:11:51,030 [10] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:11:51,030 [10] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\PDF\ImageExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:11:51,030 [10] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language :C:\temp\tessdata
+2024-05-14 10:11:54,427 [10] INFO  ScannerAPI.Logging -               Setting Tesseract Whitelist & Blacklist variable before extract text
+2024-05-14 10:11:54,994 [10] INFO  ScannerAPI.Logging -                   Load of the image file from the Pix object which is a wrapper for Leptonica PIX structure
+2024-05-14 10:11:55,584 [10] INFO  ScannerAPI.Logging -                   process the specified image
+2024-05-14 10:11:56,140 [10] INFO  ScannerAPI.Logging -                   Gets the image's content as plain text
+2024-05-14 10:11:57,171 [10] INFO  ScannerAPI.Logging -                   Completed extract image as plain text
+2024-05-14 10:11:58,987 [10] INFO  ScannerAPI.Logging -                  Completed ExtractText method
+2024-05-14 10:12:06,843 [10] INFO  ScannerAPI.Logging -       Completed Text Extract process from image file saved
+2024-05-14 10:12:13,915 [10] INFO  ScannerAPI.Logging -   Completed Read PDF content
+2024-05-14 10:12:14,680 [10] INFO  ScannerAPI.Logging - Call successfully completed, Returning PDF content to the caller
+2024-05-14 10:30:07,251 [9] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-14 10:30:11,920 [9] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-14 10:30:12,265 [9] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-14 10:30:13,469 [9] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-14 10:30:13,842 [9] INFO  ScannerAPI.Logging -       Check if directory for storing received image from source exists, if not then create :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\
+2024-05-14 10:30:14,618 [9] INFO  ScannerAPI.Logging -   Received file to be saved at location :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\8ad27398-7d77-4447-b8f9-2422c91fc1bbScan_11052024034041.pdf
+2024-05-14 10:30:16,479 [9] INFO  ScannerAPI.Logging -   Received file saved at location :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\8ad27398-7d77-4447-b8f9-2422c91fc1bbScan_11052024034041.pdf
+2024-05-14 10:30:25,857 [9] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-14 10:30:25,863 [9] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-14 10:30:25,863 [9] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:30:25,864 [9] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-14 10:30:25,864 [9] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-14 10:30:25,911 [9] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-14 10:30:26,108 [9] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-14 10:30:26,108 [9] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-14 10:30:26,108 [9] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:30:26,108 [9] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-14 10:30:26,132 [9] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-14 10:30:27,121 [9] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-14 10:30:27,121 [9] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-14 10:30:27,122 [9] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-14 10:30:27,153 [9] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\imgExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:30:27,153 [9] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\imgExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:30:27,154 [9] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language :C:\temp\tessdata
+2024-05-14 10:30:27,793 [9] INFO  ScannerAPI.Logging -               Setting Tesseract Whitelist & Blacklist variable before extract text
+2024-05-14 10:30:27,795 [9] INFO  ScannerAPI.Logging -                   Load of the image file from the Pix object which is a wrapper for Leptonica PIX structure
+2024-05-14 10:30:27,815 [9] INFO  ScannerAPI.Logging -                   process the specified image
+2024-05-14 10:30:27,823 [9] INFO  ScannerAPI.Logging -                   Gets the image's content as plain text
+2024-05-14 10:30:28,854 [9] INFO  ScannerAPI.Logging -                   Completed extract image as plain text
+2024-05-14 10:30:28,863 [9] INFO  ScannerAPI.Logging -                  Completed ExtractText method
+2024-05-14 10:30:28,863 [9] INFO  ScannerAPI.Logging -       Completed Text Extract process from image file saved
+2024-05-14 10:30:28,863 [9] INFO  ScannerAPI.Logging -   Completed Read PDF content
+2024-05-14 10:30:28,863 [9] INFO  ScannerAPI.Logging - Call successfully completed, Returning PDF content to the caller
+2024-05-14 10:36:11,845 [12] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-14 10:36:16,492 [12] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-14 10:36:16,550 [12] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-14 10:36:16,551 [12] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-14 10:36:16,551 [12] INFO  ScannerAPI.Logging -       Check if directory for storing received image from source exists, if not then create :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\
+2024-05-14 10:36:16,551 [12] INFO  ScannerAPI.Logging -   Received file to be saved at location :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\0caf9feb-ce67-4132-8d83-75895f8de339Scan_11052024034041.pdf
+2024-05-14 10:36:16,560 [11] INFO  ScannerAPI.Logging -   Received file saved at location :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\0caf9feb-ce67-4132-8d83-75895f8de339Scan_11052024034041.pdf
+2024-05-14 10:36:16,560 [11] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-14 10:36:16,561 [11] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-14 10:36:16,561 [11] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:36:16,562 [11] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-14 10:36:16,572 [11] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-14 10:36:16,614 [11] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-14 10:36:16,791 [11] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-14 10:36:16,791 [11] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-14 10:36:16,791 [11] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:36:16,791 [11] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-14 10:36:16,811 [11] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-14 10:36:17,899 [11] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-14 10:36:17,899 [11] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-14 10:36:17,901 [11] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-14 10:36:17,935 [11] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\imgExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:36:17,935 [11] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\imgExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:36:17,936 [11] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language :C:\temp\tessdata
+2024-05-14 10:36:18,404 [11] INFO  ScannerAPI.Logging -               Setting Tesseract Whitelist & Blacklist variable before extract text
+2024-05-14 10:36:18,405 [11] INFO  ScannerAPI.Logging -                   Load of the image file from the Pix object which is a wrapper for Leptonica PIX structure
+2024-05-14 10:36:18,432 [11] INFO  ScannerAPI.Logging -                   process the specified image
+2024-05-14 10:36:18,441 [11] INFO  ScannerAPI.Logging -                   Gets the image's content as plain text
+2024-05-14 10:36:19,764 [11] INFO  ScannerAPI.Logging -                   Completed extract image as plain text
+2024-05-14 10:36:19,775 [11] INFO  ScannerAPI.Logging -                  Completed ExtractText method
+2024-05-14 10:36:19,775 [11] INFO  ScannerAPI.Logging -       Completed Text Extract process from image file saved
+2024-05-14 10:36:19,775 [11] INFO  ScannerAPI.Logging -   Completed Read PDF content
+2024-05-14 10:36:19,775 [11] INFO  ScannerAPI.Logging -   Call successfully completed, Returning PDF content to the caller
+2024-05-14 10:36:19,805 [11] INFO  ScannerAPI.Logging -   Text extracted from file and prepared for sharing with source 
+{GRN : ;61036
+, POOrder : @61033
+
+, SupplierName : 
+
+UniFoods
+MUMBALMUMBAILMAHARASHTRA
+SupplierInvoice|SALE2425[6544
+SupptierinvoiceDate;06~May~2024
+ActualDeliveryDate;07May2024
+
+}
+2024-05-14 10:37:04,907 [13] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-14 10:37:04,907 [13] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-14 10:37:04,907 [13] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-14 10:37:04,907 [13] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-14 10:37:04,907 [13] INFO  ScannerAPI.Logging -       Check if directory for storing received image from source exists, if not then create :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\
+2024-05-14 10:37:04,907 [13] INFO  ScannerAPI.Logging -   Received file to be saved at location :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\22751a4f-689e-4810-bc5b-5fc294d0763aScan_11052024034041.pdf
+2024-05-14 10:37:04,909 [13] INFO  ScannerAPI.Logging -   Received file saved at location :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\22751a4f-689e-4810-bc5b-5fc294d0763aScan_11052024034041.pdf
+2024-05-14 10:37:04,909 [13] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-14 10:37:04,909 [13] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-14 10:37:04,909 [13] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:37:04,909 [13] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-14 10:37:04,920 [13] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-14 10:37:04,920 [13] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-14 10:37:05,073 [13] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-14 10:37:05,073 [13] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-14 10:37:05,073 [13] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:37:05,073 [13] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-14 10:37:05,096 [13] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-14 10:37:06,275 [13] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-14 10:37:06,275 [13] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-14 10:37:06,275 [13] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-14 10:37:06,299 [13] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\imgExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:37:06,299 [13] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\imgExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:37:06,299 [13] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language :C:\temp\tessdata
+2024-05-14 10:37:06,380 [13] INFO  ScannerAPI.Logging -               Setting Tesseract Whitelist & Blacklist variable before extract text
+2024-05-14 10:37:06,380 [13] INFO  ScannerAPI.Logging -                   Load of the image file from the Pix object which is a wrapper for Leptonica PIX structure
+2024-05-14 10:37:06,400 [13] INFO  ScannerAPI.Logging -                   process the specified image
+2024-05-14 10:37:06,405 [13] INFO  ScannerAPI.Logging -                   Gets the image's content as plain text
+2024-05-14 10:37:07,271 [13] INFO  ScannerAPI.Logging -                   Completed extract image as plain text
+2024-05-14 10:37:07,281 [13] INFO  ScannerAPI.Logging -                  Completed ExtractText method
+2024-05-14 10:37:07,281 [13] INFO  ScannerAPI.Logging -       Completed Text Extract process from image file saved
+2024-05-14 10:37:07,281 [13] INFO  ScannerAPI.Logging -   Completed Read PDF content
+2024-05-14 10:37:07,281 [13] INFO  ScannerAPI.Logging -   Call successfully completed, Returning PDF content to the caller
+2024-05-14 10:37:37,560 [13] INFO  ScannerAPI.Logging -   Text extracted from file and prepared for sharing with source 
+{GRN : ;61036
+, POOrder : @61033
+
+, SupplierName : 
+
+UniFoods
+MUMBALMUMBAILMAHARASHTRA
+SupplierInvoice|SALE2425[6544
+SupptierinvoiceDate;06~May~2024
+ActualDeliveryDate;07May2024
+
+}
+2024-05-14 10:38:04,148 [12] INFO  ScannerAPI.Logging - API call received for ProcessScannedDocument Method
+2024-05-14 10:38:04,148 [12] INFO  ScannerAPI.Logging -   Call to Request.Content.ReadAsMultipartAsync(provider)
+2024-05-14 10:38:04,148 [12] INFO  ScannerAPI.Logging -   Processing provider contents
+2024-05-14 10:38:04,148 [12] INFO  ScannerAPI.Logging -   Read content as Stream
+2024-05-14 10:38:04,148 [12] INFO  ScannerAPI.Logging -       Check if directory for storing received image from source exists, if not then create :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\
+2024-05-14 10:38:04,148 [12] INFO  ScannerAPI.Logging -   Received file to be saved at location :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\100af186-95dd-48d5-8b2e-219b7a38b4abScan_11052024034041.pdf
+2024-05-14 10:38:04,149 [12] INFO  ScannerAPI.Logging -   Received file saved at location :C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\Received\100af186-95dd-48d5-8b2e-219b7a38b4abScan_11052024034041.pdf
+2024-05-14 10:38:04,149 [12] INFO  ScannerAPI.Logging -   Starting Read PDF content
+2024-05-14 10:38:04,149 [12] INFO  ScannerAPI.Logging -       Check if directory for storing image ( to save extract from PDF file) exists, if not then create
+2024-05-14 10:38:04,150 [12] INFO  ScannerAPI.Logging -       Starting ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:38:04,150 [12] INFO  ScannerAPI.Logging -           Start image processing using file stream
+2024-05-14 10:38:04,160 [12] INFO  ScannerAPI.Logging -           Create new PdfReader object from Stream data
+2024-05-14 10:38:04,160 [12] INFO  ScannerAPI.Logging -           Loop all PdfReader object
+2024-05-14 10:38:04,307 [12] INFO  ScannerAPI.Logging -           Loop completed for all PdfReader object
+2024-05-14 10:38:04,308 [12] INFO  ScannerAPI.Logging -           Close PdfReader object after all processing
+2024-05-14 10:38:04,308 [12] INFO  ScannerAPI.Logging -       Completed ExtractImage and Get a List of Image before reading text from it
+2024-05-14 10:38:04,308 [12] INFO  ScannerAPI.Logging -       Start processing all image list Extracted in previous action
+2024-05-14 10:38:04,331 [12] INFO  ScannerAPI.Logging -       Start Image Sharpen action
+2024-05-14 10:38:05,507 [12] INFO  ScannerAPI.Logging -       Complete Image Sharpen action
+2024-05-14 10:38:05,507 [12] INFO  ScannerAPI.Logging -       Crop Image exactly same size as PDF image
+2024-05-14 10:38:05,508 [12] INFO  ScannerAPI.Logging -       Save the image to a file
+2024-05-14 10:38:05,530 [12] INFO  ScannerAPI.Logging -       Savded image to a file at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\imgExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:38:05,530 [12] INFO  ScannerAPI.Logging -       Starting Text Extract process from image file saved at C:\Users\DSingh\Downloads\ScannerService\API\ScannerAPI\ScannerAPI\Documents\imgExtract\Scan_11052024034041.pdf0.jpg
+2024-05-14 10:38:05,530 [12] INFO  ScannerAPI.Logging -           Creating the tesseract OCR engine with English as the language :C:\temp\tessdata
+2024-05-14 10:38:05,598 [12] INFO  ScannerAPI.Logging -               Setting Tesseract Whitelist & Blacklist variable before extract text
+2024-05-14 10:38:05,598 [12] INFO  ScannerAPI.Logging -                   Load of the image file from the Pix object which is a wrapper for Leptonica PIX structure
+2024-05-14 10:38:05,623 [12] INFO  ScannerAPI.Logging -                   process the specified image
+2024-05-14 10:38:05,628 [12] INFO  ScannerAPI.Logging -                   Gets the image's content as plain text
+2024-05-14 10:38:06,493 [12] INFO  ScannerAPI.Logging -                   Completed extract image as plain text
+2024-05-14 10:38:06,507 [12] INFO  ScannerAPI.Logging -                  Completed ExtractText method
+2024-05-14 10:38:06,507 [12] INFO  ScannerAPI.Logging -       Completed Text Extract process from image file saved
+2024-05-14 10:38:06,507 [12] INFO  ScannerAPI.Logging -   Completed Read PDF content
+2024-05-14 10:38:06,507 [12] INFO  ScannerAPI.Logging -   Call successfully completed, Returning PDF content to the caller

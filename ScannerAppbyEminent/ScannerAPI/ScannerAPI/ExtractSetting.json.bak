@@ -1,0 +1,18 @@
+
+[
+	{
+			"Start":"Order No",
+			"End":"Date",
+			"LinkTo":"GRN"
+	},
+	{
+			"Start":"PO Order Number",
+			"End":"Supplier",
+			"LinkTo":"POOrder"
+	},
+	{
+			"Start":"Supplier",
+			"End":"Recipient",
+			"LinkTo":"SupplierName"
+	}
+	]
