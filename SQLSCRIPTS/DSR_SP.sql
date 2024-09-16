@@ -1,4 +1,6 @@
-CREATE PROCEDURE dbo.dbsp_GetDSRDetails
+--exec dbo.dbsp_GetDSRDetails @Startdt = '2024-08-12',  @Enddt = '2024-08-18'
+
+CREATE or alter PROCEDURE dbo.dbsp_GetDSRDetails
 (	@Startdt datetime, @Enddt  datetime )
 AS
 BEGIN
@@ -16,9 +18,138 @@ BEGIN
 		SUM(SI.NetChargeAmount) as 'SERVICE CHARGE AMOUNT',
 		SUM(SI.NetAmount) AS 'SALES NET TOTAL',
 		SUM(SI.TotalAmount) AS 'SALES TOTAL WITH SC'
-	FROM Rista_SaleItems SIT INNER JOIN Rista_SaleInvoices SI ON SIT.InvoiceID = SI.InvoiceID
+	FROM Rista_SaleItems (NOLOCK) SIT INNER JOIN Rista_SaleInvoices (NOLOCK) SI ON SIT.InvoiceID = SI.InvoiceID
 	WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt
 	
+
+	/*** Dine In Covers ********
+	;WITH CTE_APCDINEIN(TOTALCOVERS, TOTALSALE, TOTALDELIVERYBILLS, TOTALDELIVERYSALE)
+	AS(
+		SELECT	SUM(CASE WHEN si.Channel LIKE 'dine%' THEN SI.PERSONCOUNT ELSE 0 END) TOTALCOVERS,
+				SUM(CASE WHEN si.Channel LIKE 'dine%' THEN SI.NETAMOUNT ELSE 0 END) TOTALSALE,
+				COUNT(DISTINCT SD.InvoiceID) TOTALDELIVERYBILLS,
+				SUM(CASE WHEN SD.InvoiceID is not NULL THEN SI.NetAmount ELSE 0 END) AS TOTALDELIVERYSALE
+		FROM	Rista_SaleInvoices (NOLOCK) SI
+		LEFT JOIN Rista_SaleDelivery (NOLOCK) SD  ON SI.InvoiceID = SD.InvoiceID
+		WHERE	SI.InvoiceDay BETWEEN @Startdt and @Enddt 
+	)
+	SELECT	
+			(TOTALCOVERS-TOTALDELIVERYBILLS) 'DINEINCOVERS',
+			(TOTALSALE - TOTALDELIVERYSALE) / TOTALCOVERS 'APCDINEIN'
+	FROM CTE_APCDINEIN
+
+	--or
+	*/
+	;WITH CTE_APCDINEIN(TOTALCOVERS, TOTALSALE)
+	AS(
+		SELECT	SUM(SI.PERSONCOUNT) TOTALCOVERS,
+				SUM(SI.NETAMOUNT) TOTALSALE
+		FROM	Rista_SaleInvoices (NOLOCK) SI
+		LEFT JOIN Rista_SaleDelivery (NOLOCK) SD  ON SI.InvoiceID = SD.InvoiceID
+		WHERE	SI.InvoiceDay BETWEEN @Startdt and @Enddt AND SD.InvoiceID IS NULL AND SI.PERSONCOUNT > 0
+	)
+	SELECT	
+			TOTALCOVERS 'DINE IN COVERS',
+			TOTALSALE / TOTALCOVERS 'APC DINE IN'
+	FROM CTE_APCDINEIN
+	
+
+	/*** DELIVERY DETAILS WITH BILLS COUNT + SALE  -- NOT CONSIDERING TAKEAWAY */
+	SELECT 	
+		SUM(CASE WHEN Channel LIKE '%ZOMATO%' THEN 1 ELSE 0 END) AS 'ZOMATO DELIVERY BILLS NO',
+		SUM(CASE WHEN Channel LIKE '%ZOMATO%' THEN SI.NetAmount ELSE 0 END) AS 'ZOMATO DELIVERY SALE',
+		SUM(CASE WHEN Channel LIKE '%SWIGGY%' THEN 1 ELSE 0 END) AS 'SWIGGY DELIVERY BILLS NO',
+		SUM(CASE WHEN Channel LIKE '%SWIGGY%' THEN SI.NetAmount ELSE 0 END) AS 'SWIGGY DELIVERY SALE',
+		SUM(CASE WHEN Channel NOT LIKE '%ZOMATO%' AND Channel NOT LIKE '%SWIGGY%' THEN 1 ELSE 0 END) AS 'DELIVERY CHANNEL 3 BILLS NO',
+		SUM(CASE WHEN Channel NOT LIKE '%ZOMATO%' AND Channel NOT LIKE '%SWIGGY%' THEN SI.NetAmount ELSE 0 END) AS 'DELIVERY CHANNEL 3 SALE',
+		COUNT(DISTINCT SI.InvoiceID) 'DELIVERY BILLS TOTAL NO',
+		SUM(SI.NETAMOUNT) 'DELIVERY BILLS AMOUNT TOTAL'
+	FROM Rista_SaleInvoices (NOLOCK) SI 
+	--IF TAKEAWAY NEED TO CONSIDER THEN ISE LEFT JOIN BELOW
+	INNER JOIN [dbo].[Rista_SaleSourceInfo] (NOLOCK) SSI ON SI.InvoiceID = SSI.InvoiceID
+	INNER JOIN DBO.Rista_SaleDelivery (NOLOCK) SD ON SI.InvoiceID = SD.InvoiceID
+	WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt AND SSI.ISECOMORDER = 1 AND SI.PERSONCOUNT=0
+	
+
+	/** Dine in via partners ****/
+	;WITH SalesData_ZOMATO AS (
+		SELECT
+			ISNULL(SUM(RSI.NETAMOUNT), 0) AS DINEINSALE,
+			ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
+			COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
+		FROM Rista_SaleInvoices (NOLOCK) rsi
+		INNER JOIN Rista_SaleSourceInfo (NOLOCK) rss ON rsi.InvoiceID = rss.InvoiceID
+		LEFT JOIN Rista_SaleDelivery (NOLOCK) rsd ON rsi.InvoiceID = rsd.InvoiceID
+		WHERE rsi.PersonCount > 0 AND rsd.InvoiceID IS NULL  AND rsi.InvoiceDay BETWEEN @Startdt and @Enddt 
+		/*AND rss.Source LIKE '%Zomato%'*/ AND rsi.Channel like '%Zomato%'
+	),
+	SalesData_DINEOUT AS (
+		SELECT
+			ISNULL(SUM(RSI.NETAMOUNT), 0) AS DINEINSALE,
+			ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
+			COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
+		FROM Rista_SaleInvoices (NOLOCK) rsi
+		INNER JOIN Rista_SaleSourceInfo (NOLOCK) rss ON rsi.InvoiceID = rss.InvoiceID
+		LEFT JOIN Rista_SaleDelivery (NOLOCK) rsd ON rsi.InvoiceID = rsd.InvoiceID
+		WHERE rsi.PersonCount > 0 AND rsd.InvoiceID IS NULL  AND rsi.InvoiceDay BETWEEN @Startdt and @Enddt /*AND rss.Source LIKE '%Dine%Out%'*/ AND rsi.Channel like '%Dine%Out%'
+	),
+	SalesData_EAZYDINER AS (
+		SELECT
+			ISNULL(SUM(RSI.NETAMOUNT), 0) AS DINEINSALE,
+			ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
+			COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
+		FROM Rista_SaleInvoices (NOLOCK) rsi
+		INNER JOIN Rista_SaleSourceInfo (NOLOCK) rss ON rsi.InvoiceID = rss.InvoiceID
+		LEFT JOIN Rista_SaleDelivery (NOLOCK) rsd ON rsi.InvoiceID = rsd.InvoiceID
+		WHERE rsi.PersonCount > 0 AND rsd.InvoiceID IS NULL  AND rsi.InvoiceDay BETWEEN @Startdt and @Enddt /*AND rss.Source LIKE '%EAZY%DINER%'*/ AND rsi.Channel like '%EAZY%DINER%'
+	),
+	SalesData_ALL AS (
+		SELECT
+			ISNULL(SUM(RSI.NETAMOUNT), 0) AS DINEINSALE,
+			ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
+			COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
+		FROM Rista_SaleInvoices (NOLOCK) rsi
+		INNER JOIN Rista_SaleSourceInfo (NOLOCK) rss ON rsi.InvoiceID = rss.InvoiceID
+		LEFT JOIN Rista_SaleDelivery (NOLOCK) rsd ON rsi.InvoiceID = rsd.InvoiceID
+		WHERE rsi.PersonCount > 0 AND rsd.InvoiceID IS NULL AND rsi.InvoiceDay BETWEEN @Startdt and @Enddt
+	)
+	-- Final Select Statement to produce single row data
+	SELECT
+		-- Zomato Data
+		zomato.DINEINSALE AS ZOMATO_DINEIN_SALE,
+		zomato.DINEINCOVERS AS ZOMATO_DINEIN_COVERS,
+		zomato.DINEINBILLS AS ZOMATO_DINEIN_BILLS,
+    
+		-- Dineout Data
+		dineout.DINEINSALE AS DINEOUT_DINEIN_SALE,
+		dineout.DINEINCOVERS AS DINEOUT_DINEIN_COVERS,
+		dineout.DINEINBILLS AS DINEOUT_DINEIN_BILLS,
+    
+		-- EazyDiner Data
+		eazydiner.DINEINSALE AS EAZYDINER_DINEIN_SALE,
+		eazydiner.DINEINCOVERS AS EAZYDINER_DINEIN_COVERS,
+		eazydiner.DINEINBILLS AS EAZYDINER_DINEIN_BILLS,
+
+		-- Other Data (ALL - Zomato - Dineout - EazyDiner)
+		(all_data.DINEINSALE 
+		 - ISNULL(zomato.DINEINSALE, 0) 
+		 - ISNULL(dineout.DINEINSALE, 0) 
+		 - ISNULL(eazydiner.DINEINSALE, 0)) AS OTHERS_DINEIN_SALE,
+
+		(all_data.DINEINCOVERS 
+		 - ISNULL(zomato.DINEINCOVERS, 0) 
+		 - ISNULL(dineout.DINEINCOVERS, 0) 
+		 - ISNULL(eazydiner.DINEINCOVERS, 0)) AS OTHERS_DINEIN_COVERS,
+
+		(all_data.DINEINBILLS 
+		 - ISNULL(zomato.DINEINBILLS, 0) 
+		 - ISNULL(dineout.DINEINBILLS, 0) 
+		 - ISNULL(eazydiner.DINEINBILLS, 0)) AS OTHERS_DINEIN_BILLS
+
+	FROM  SalesData_ALL all_data
+	LEFT JOIN SalesData_ZOMATO zomato ON 1 = 1
+	LEFT JOIN SalesData_DINEOUT dineout ON 1 = 1
+	LEFT JOIN SalesData_EAZYDINER eazydiner ON 1 = 1;
 
 END
 GO
