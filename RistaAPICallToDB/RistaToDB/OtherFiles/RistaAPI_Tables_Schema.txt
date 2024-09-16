@@ -1,0 +1,444 @@
+
+
+-- Drop Rista_SaleResource first as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleResource;
+go
+
+-- Drop Rista_SaleInvoiceItems first as it references Rista_SaleInvoices and Rista_SaleItems
+DROP TABLE IF EXISTS Rista_SaleInvoiceItems;
+go
+
+-- Drop Rista_SaleCharges as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleCharges;
+go
+
+-- Drop Rista_SaleLoyalties as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleLoyalties;
+go
+
+-- Drop Rista_SaleRefunds as it references Rista_SaleInvoices and Rista_SalePayments
+DROP TABLE IF EXISTS Rista_SaleRefunds;
+go
+
+-- Drop Rista_SalePayments as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SalePayments;
+go
+
+-- Drop Rista_SaleTaxes as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleTaxes;
+go
+
+-- Drop Rista_SaleDiscounts as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleDiscounts;
+go
+
+-- Drop Rista_SaleItemDiscounts as it references Rista_SaleItems
+DROP TABLE IF EXISTS Rista_SaleItemDiscounts;
+go
+
+-- Drop Rista_SaleItemTaxes as it references Rista_SaleItems
+DROP TABLE IF EXISTS Rista_SaleItemTaxes;
+go
+
+-- Drop Rista_SaleItemOptionsTaxes as it references Rista_SaleItemOptions
+DROP TABLE IF EXISTS Rista_SaleItemOptionsTaxes;
+go
+
+-- Drop Rista_SaleItemOptions as it references Rista_SaleItems
+DROP TABLE IF EXISTS Rista_SaleItemOptions;
+go
+
+-- Drop Rista_SaleItems as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleItems;
+go
+
+-- Drop Rista_SaleCustomers as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleCustomers;
+go
+
+-- Drop Rista_SaleDeliveryBy as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleDeliveryBy;
+go
+
+-- Drop Rista_SaleDelivery as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleDelivery;
+go
+
+-- Drop Rista_SaleSourceInfo as it references Rista_SaleInvoices
+DROP TABLE IF EXISTS Rista_SaleSourceInfo;
+go
+
+-- Finally, drop Rista_SaleInvoices as it is referenced by many other tables
+DROP TABLE IF EXISTS Rista_SaleInvoices;
+go
+
+CREATE TABLE Rista_SaleInvoices (
+    InvoiceID INT IDENTITY(1,1) PRIMARY KEY,
+    branchCode varchar(255),
+    InvoiceNumber VARCHAR(255),
+    OrderNumber VARCHAR(255),
+    StatementNumber VARCHAR(255),
+    InvoiceDate datetimeoffset,
+    InvoiceDay VARCHAR(255),
+    CreatedDate datetimeoffset,
+    ModifiedDate datetimeoffset,
+    DeviceLabel VARCHAR(255),
+    InvoiceType VARCHAR(50),
+    Status VARCHAR(50),
+    FulfillmentStatus VARCHAR(50),
+    SourceOutletID INT,
+    OriginalSaleInvoiceNumber VARCHAR(255),
+    DeliveryMode VARCHAR(50),
+    Label VARCHAR(255),
+    LabelGroup VARCHAR(255),
+    SessionLabel VARCHAR(255),
+    PersonCount INT,
+    SaleByUserID VARCHAR(255),
+    Channel VARCHAR(255),
+    Currency VARCHAR(50),
+	ItemCount INT,
+    ItemTotalAmount DECIMAL(10, 2),
+    directchargeamout DECIMAL(10, 2),
+    ChargeAmount DECIMAL(10, 2),
+    DiscountAmount DECIMAL(10, 2),
+    TotalDiscountAmount DECIMAL(10, 2),
+    TaxAmountIncluded DECIMAL(10, 2),
+    TaxAmountExcluded DECIMAL(10, 2),
+    GrossAmount DECIMAL(10, 2),
+    NetDiscountAmount DECIMAL(10, 2),
+    NetDirectChargeAmount DECIMAL(10, 2),
+    NetAmount DECIMAL(10, 2),
+    NetChargeAmount DECIMAL(10, 2),
+    BillAmount DECIMAL(10, 2),
+    RoundOffAmount DECIMAL(10, 2),
+    BillRoundedAmount DECIMAL(10, 2),
+    TipAmount DECIMAL(10, 2),
+    TotalAmount DECIMAL(10, 2),
+    TotalCost DECIMAL(10, 2),
+    Note TEXT,
+    URL VARCHAR(255),
+    StatusInfoReason VARCHAR(255),
+    AccountingRoundOff DECIMAL(10, 2),
+    LastKey VARCHAR(255)
+    /*,FOREIGN KEY (BranchID) REFERENCES Branches(BranchID) */
+);
+go
+
+
+CREATE TABLE Rista_SaleSourceInfo (
+	InvoiceID INT,
+    CompanyName VARCHAR(255),
+    InvoiceNumber VARCHAR(255),
+    InvoiceDate datetimeoffset,
+    CallbackURL VARCHAR(255),
+    Source VARCHAR(50),
+	sourceOutletId VARCHAR(50),
+	OutletID VARCHAR(50),
+    IsEditable BIT,
+    VerifyCoupons BIT,
+    IsEcomOrder BIT,
+	FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleDelivery (
+    DeliveryID INT IDENTITY(1,1) PRIMARY KEY,
+    InvoiceID INT,
+    Title VARCHAR(255),
+    AdvanceOrder BIT,
+    Name VARCHAR(255),
+    Email VARCHAR(255),
+    PhoneNumber VARCHAR(255),
+    Mode VARCHAR(50),
+    AddressLabel VARCHAR(255),
+    AddressLine VARCHAR(255),
+    City VARCHAR(255),
+    State VARCHAR(255),
+    Country VARCHAR(255),
+    Zip VARCHAR(255),
+    Landmark VARCHAR(255),
+    Latitude DECIMAL(9, 6),
+    Longitude DECIMAL(9, 6),
+    DeliveryDate datetimeoffset,
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleDeliveryBy (
+    InvoiceID INT,
+    Name VARCHAR(255),
+    Email VARCHAR(255),
+    PhoneNumber VARCHAR(255),
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+--Delivery by missing
+CREATE TABLE Rista_SaleCustomers (
+    ID VARCHAR(50),
+    InvoiceID INT,
+    Title VARCHAR(50),
+    Name VARCHAR(255),
+    Email VARCHAR(255),
+    PhoneNumber VARCHAR(255),
+    TaxId VARCHAR(255),
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+
+CREATE TABLE Rista_SaleItems (
+    ItemID INT IDENTITY(1,1) PRIMARY KEY,
+    InvoiceID INT,
+    ShortName VARCHAR(255),
+    LongName VARCHAR(255),
+    Variants VARCHAR(255),
+    SKUCode VARCHAR(255),
+    BarCode VARCHAR(255),
+    CategoryName VARCHAR(255),
+    SubCategoryName VARCHAR(255),
+    BrandName VARCHAR(255),
+    AccountName VARCHAR(255),
+    ItemNature VARCHAR(50),
+    Quantity INT,
+    UnitPrice DECIMAL(10, 2),
+    Overridden BIT,
+    MeasuringUnit VARCHAR(255),
+    ItemAmount DECIMAL(10, 2),
+    OptionAmount DECIMAL(10, 2),
+    DiscountAmount DECIMAL(10, 2),
+    FactoredDiscountAmount DECIMAL(10, 2),
+    ItemTotalAmount DECIMAL(10, 2),
+    GrossAmount DECIMAL(10, 2),
+    BaseGrossAmount DECIMAL(10, 2),
+    NetDiscountAmount DECIMAL(10, 2),
+    BaseNetDiscountAmount DECIMAL(10, 2),
+    NetAmount DECIMAL(10, 2),
+    BaseNetAmount DECIMAL(10, 2),
+    TaxAmountIncluded DECIMAL(10, 2),
+    TaxAmountExcluded DECIMAL(10, 2),
+    TaxAmount DECIMAL(10, 2),
+    BaseTaxAmount DECIMAL(10, 2),
+    ItemCost DECIMAL(10, 2),
+    CreatedBy VARCHAR(255),
+    CreatedTime c,
+    Note TEXT,
+	KotNumber VARCHAR(50),
+    KotGroup  VARCHAR(50),
+    KotTimestamp  VARCHAR(50),
+    KotStatus VARCHAR(50),
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleItemOptions (
+    ItemOptionID INT IDENTITY(1,1) PRIMARY KEY,
+    ItemID INT,
+    Type VARCHAR(50),
+    Name VARCHAR(255),
+    Variants VARCHAR(255),
+    SKUCode VARCHAR(255),
+    Quantity INT,
+    UnitPrice DECIMAL(10, 2),
+    Amount DECIMAL(10, 2),
+    GrossAmount DECIMAL(10, 2),
+    NetDiscountAmount DECIMAL(10, 2),
+    NetAmount DECIMAL(10, 2),
+    TaxAmount DECIMAL(10, 2),
+    CategoryName VARCHAR(255),
+    SubCategoryName VARCHAR(255),
+    BrandName VARCHAR(255),
+    AccountName VARCHAR(255),
+    FOREIGN KEY (ItemID) REFERENCES Rista_SaleItems(ItemID)
+);
+go
+
+CREATE TABLE Rista_SaleItemOptionsTaxes (
+    ItemOptionID INT,
+    Name VARCHAR(255),
+    percentage DECIMAL(10, 2),
+    saleAmount DECIMAL(10, 2),
+    amountIncluded DECIMAL(10, 2),
+    amountExcluded DECIMAL(10, 2),
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (ItemOptionID) REFERENCES Rista_SaleItemOptions(ItemOptionID)
+);
+go
+
+CREATE TABLE Rista_SaleItemTaxes (
+	ItemTaxID INT IDENTITY(1,1) PRIMARY KEY,
+    ItemID INT,
+    name VARCHAR(255),
+    percentage DECIMAL(10, 2),
+    saleAmount DECIMAL(10, 2),
+    amountIncluded DECIMAL(10, 2),
+    amountExcluded DECIMAL(10, 2),
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (ItemID) REFERENCES Rista_SaleItems(ItemID)
+);
+go
+
+
+CREATE TABLE Rista_SaleItemDiscounts (
+    ItemDiscountID INT IDENTITY(1,1) PRIMARY KEY,
+    ItemID INT,
+    Name VARCHAR(255),
+    Type VARCHAR(50),
+    Rate DECIMAL(10, 2),
+    SaleAmount DECIMAL(10, 2),
+    Amount DECIMAL(10, 2),
+    LoyaltyPoints INT,
+    Coupon VARCHAR(255),
+    CouponProvider VARCHAR(255),
+    CampaignName VARCHAR(255),
+    Reason VARCHAR(255),
+    AppliedBy VARCHAR(255),
+    FOREIGN KEY (ItemID) REFERENCES Rista_SaleItems(ItemID)
+);
+go
+
+CREATE TABLE Rista_SaleDiscounts (
+	DiscountID INT IDENTITY(1,1) PRIMARY KEY,
+    InvoiceID INT,
+    Name VARCHAR(255),
+    Type VARCHAR(50),
+    Rate DECIMAL(10, 2),
+    SaleAmount DECIMAL(10, 2),
+    Amount DECIMAL(10, 2),
+    LoyaltyPoints INT,
+    Coupon VARCHAR(255),
+    CouponProvider VARCHAR(255),
+    CampaignName VARCHAR(255),
+    Reason VARCHAR(255),
+    AppliedBy VARCHAR(255),
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleTaxes (
+    InvoiceID INT,
+    name VARCHAR(255),
+    percentage DECIMAL(10, 2),
+    saleAmount DECIMAL(10, 2),
+	itemTaxIncluded DECIMAL(10, 2),
+    itemTaxExcluded DECIMAL(10, 2),
+	chargeTaxIncluded DECIMAL(10, 2),
+    chargeTaxExcluded DECIMAL(10, 2),
+    amountIncluded DECIMAL(10, 2),
+    amountExcluded DECIMAL(10, 2),
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+
+CREATE TABLE Rista_SalePayments (
+    PaymentID INT IDENTITY(1,1) PRIMARY KEY,
+    InvoiceID INT,
+    Mode VARCHAR(50),
+    SubMode VARCHAR(50),
+    Amount DECIMAL(10, 2),
+    Reference VARCHAR(255),
+    Note TEXT,
+    PostedDate datetimeoffset,
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleRefunds (
+    RefundID INT IDENTITY(1,1) PRIMARY KEY,
+    InvoiceID INT,
+    Mode VARCHAR(50),
+    RefundAmount DECIMAL(10, 2),
+    PaymentID INT,
+    ReturnToCustomer bit,
+    CreditToCustomerPrepaidBalance BIT,
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleLoyalties (
+    LoyaltyID INT IDENTITY(1,1) PRIMARY KEY,
+    InvoiceID INT,
+    Type VARCHAR(50),
+    Points INT,
+    Remarks TEXT,
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleCharges (
+    ChargeID INT IDENTITY(1,1) PRIMARY KEY,
+    InvoiceID INT,
+    Name VARCHAR(255),
+    Type VARCHAR(50),
+    Rate DECIMAL(10, 2),
+    SaleAmount DECIMAL(10, 2),
+    Amount DECIMAL(10, 2),
+    TaxAmountIncluded DECIMAL(10, 2),
+    TaxAmountExcluded DECIMAL(10, 2),
+    TaxAmount DECIMAL(10, 2),
+    IsDirectCharge bit,
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleResource (
+    InvoiceID INT,
+	BranchCode varchar(50),
+	resourceId VARCHAR(255),
+    resourceName VARCHAR(50),
+    groupSize INT,
+	resourceGroupName VARCHAR(100),
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleInvoiceItems (
+    InvoiceItemID INT IDENTITY(1,1) PRIMARY KEY,
+    InvoiceID INT,
+    ItemID INT,
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID),
+    FOREIGN KEY (ItemID) REFERENCES Rista_SaleItems(ItemID)
+);
+go
+
+CREATE TABLE Rista_BranchResource (
+    BranchCode varchar(50),
+	resourceId VARCHAR(255),
+    Name VARCHAR(100),
+    capacity INT,
+	resourceGroupName VARCHAR(100),
+	createdDate datetime default CURRENT_TIMESTAMP
+);
+go
+
+CREATE TABLE Rista_SaleEventLog (
+    InvoiceID INT,
+	status varchar(100),
+	note VARCHAR(max),
+    eventByUserName VARCHAR(100),
+    eventDate varchar(100)
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+CREATE TABLE Rista_SaleBatches (
+    InvoiceID INT,
+	batchNumber varchar(100),
+    expiryDate VARCHAR(100),
+	quantity	INT,
+    supplierBatchNumber varchar(100)
+    FOREIGN KEY (InvoiceID) REFERENCES Rista_SaleInvoices(InvoiceID)
+);
+go
+
+/*** Views ******/
+SELECT	
+	Channel,   SUM(RSI.NetAmount) [Net Sales], 
+	COUNT(1) [No. of Transactions], AVG(RSI.NetAmount) [Avg Sale Per Transaction],
+	SUM(RSI.PersonCount) [No. of People], 
+	SUM(RSI.NetAmount)/ SUM(CASE RSI.PersonCount WHEN 0 THEN 1 ELSE RSI.PersonCount END) [Avg Sale Per Person],
+	SUM(RSI.DirectChargeAmout) [Packaging charges (Direct Charges)]
+FROM Rista_SaleInvoices RSI
+GROUP BY RSI.CHANNEL

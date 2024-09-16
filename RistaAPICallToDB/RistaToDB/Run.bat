@@ -1,0 +1,2 @@
+python RistaToDB.py
+pause

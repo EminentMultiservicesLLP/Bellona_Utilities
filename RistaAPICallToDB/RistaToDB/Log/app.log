@@ -1,0 +1,344 @@
+2024-08-28 23:38:17,843 - my_logger - ERROR - Data import started for 1 at 2024-08-28 23:38:17 for parameter {'branch': 'bnlkeght', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:41:39,036 - my_logger - ERROR - Data importe completed at 2024-08-28 23:41:39 for parameter {'branch': 'bnlkeght', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'EIG-11037'} successfully
+2024-08-28 23:41:39,036 - my_logger - ERROR - Data import started for 2 at 2024-08-28 23:41:39 for parameter {'branch': 'HO', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:41:39,894 - my_logger - ERROR - Data importe completed at 2024-08-28 23:41:39 for parameter {'branch': 'HO', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-28 23:41:39,894 - my_logger - ERROR - Data import started for 3 at 2024-08-28 23:41:39 for parameter {'branch': 'bnlkisha', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:43:45,882 - my_logger - ERROR - Data importe completed at 2024-08-28 23:43:45 for parameter {'branch': 'bnlkisha', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-28 23:43:45,882 - my_logger - ERROR - Data import started for 4 at 2024-08-28 23:43:45 for parameter {'branch': 'bnlkdoba', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:43:46,431 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-28 23:43:46,453 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-28 23:43:46,462 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-28 23:44:32,595 - my_logger - ERROR - Data importe completed at 2024-08-28 23:44:32 for parameter {'branch': 'bnlkdoba', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-28 23:44:32,595 - my_logger - ERROR - Data import started for 5 at 2024-08-28 23:44:32 for parameter {'branch': 'CS', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:44:33,248 - my_logger - ERROR - Data importe completed at 2024-08-28 23:44:33 for parameter {'branch': 'CS', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-28 23:44:33,250 - my_logger - ERROR - Data import started for 6 at 2024-08-28 23:44:33 for parameter {'branch': 'ISR-P', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:44:34,477 - my_logger - ERROR - Data importe completed at 2024-08-28 23:44:34 for parameter {'branch': 'ISR-P', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-28 23:44:34,477 - my_logger - ERROR - Data import started for 7 at 2024-08-28 23:44:34 for parameter {'branch': 'DBR-P', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:44:35,338 - my_logger - ERROR - Data importe completed at 2024-08-28 23:44:35 for parameter {'branch': 'DBR-P', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-28 23:44:35,338 - my_logger - ERROR - Data import started for 8 at 2024-08-28 23:44:35 for parameter {'branch': 'bnlpdoba', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:49:26,765 - my_logger - ERROR - Data importe completed at 2024-08-28 23:49:26 for parameter {'branch': 'bnlpdoba', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'DPM10793'} successfully
+2024-08-28 23:49:26,765 - my_logger - ERROR - Data import started for 9 at 2024-08-28 23:49:26 for parameter {'branch': 'bnlpjuls', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:49:27,188 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-28 23:49:27,188 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-28 23:49:27,203 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-28 23:50:40,273 - my_logger - ERROR - Data importe completed at 2024-08-28 23:50:40 for parameter {'branch': 'bnlpjuls', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-28 23:50:40,273 - my_logger - ERROR - Data import started for 10 at 2024-08-28 23:50:40 for parameter {'branch': 'bnlpfyle', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:52:16,543 - my_logger - ERROR - Data importe completed at 2024-08-28 23:52:16 for parameter {'branch': 'bnlpfyle', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-28 23:52:16,558 - my_logger - ERROR - Data import started for 11 at 2024-08-28 23:52:16 for parameter {'branch': 'bnlpeght', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:56:36,272 - my_logger - ERROR - Data importe completed at 2024-08-28 23:56:36 for parameter {'branch': 'bnlpeght', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'EPM13633'} successfully
+2024-08-28 23:56:36,272 - my_logger - ERROR - Data import started for 12 at 2024-08-28 23:56:36 for parameter {'branch': 'bnlppout', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-28 23:56:36,901 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-28 23:56:36,908 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-28 23:56:36,916 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:00:29,999 - my_logger - ERROR - Data importe completed at 2024-08-29 00:00:29 for parameter {'branch': 'bnlppout', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'PPM25911'} successfully
+2024-08-29 00:00:29,999 - my_logger - ERROR - Data import started for 13 at 2024-08-29 00:00:29 for parameter {'branch': 'bnlplegm', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:04:18,597 - my_logger - ERROR - Data importe completed at 2024-08-29 00:04:18 for parameter {'branch': 'bnlplegm', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'LPM18448'} successfully
+2024-08-29 00:04:18,600 - my_logger - ERROR - Data import started for 14 at 2024-08-29 00:04:18 for parameter {'branch': 'bnlpchcf', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:04:19,069 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 00:04:19,069 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:04:19,087 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:09:09,184 - my_logger - ERROR - Data importe completed at 2024-08-29 00:09:09 for parameter {'branch': 'bnlpchcf', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'CPM16537'} successfully
+2024-08-29 00:09:09,184 - my_logger - ERROR - Data import started for 15 at 2024-08-29 00:09:09 for parameter {'branch': 'bnlpalra', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:12:05,511 - my_logger - ERROR - Data importe completed at 2024-08-29 00:12:05 for parameter {'branch': 'bnlpalra', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'CAPM14111'} successfully
+2024-08-29 00:12:05,511 - my_logger - ERROR - Data import started for 16 at 2024-08-29 00:12:05 for parameter {'branch': 'bnahalra', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:12:05,853 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 00:12:05,853 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:12:05,853 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:13:57,991 - my_logger - ERROR - Data importe completed at 2024-08-29 00:13:57 for parameter {'branch': 'bnahalra', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:13:57,995 - my_logger - ERROR - Data import started for 17 at 2024-08-29 00:13:57 for parameter {'branch': 'bnahisha', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:16:13,245 - my_logger - ERROR - Data importe completed at 2024-08-29 00:16:13 for parameter {'branch': 'bnahisha', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:16:13,245 - my_logger - ERROR - Data import started for 18 at 2024-08-29 00:16:13 for parameter {'branch': 'bnahpout', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:19:26,857 - my_logger - ERROR - Data importe completed at 2024-08-29 00:19:26 for parameter {'branch': 'bnahpout', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'PPA17061'} successfully
+2024-08-29 00:19:26,864 - my_logger - ERROR - Data import started for 19 at 2024-08-29 00:19:26 for parameter {'branch': 'bnahchcf', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:19:27,315 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 00:19:27,315 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:19:27,315 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:22:55,814 - my_logger - ERROR - Data importe completed at 2024-08-29 00:22:55 for parameter {'branch': 'bnahchcf', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'CPA11936'} successfully
+2024-08-29 00:22:55,814 - my_logger - ERROR - Data import started for 20 at 2024-08-29 00:22:55 for parameter {'branch': 'bnbgisha', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:24:22,414 - my_logger - ERROR - Data importe completed at 2024-08-29 00:24:22 for parameter {'branch': 'bnbgisha', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:24:22,414 - my_logger - ERROR - Data import started for 21 at 2024-08-29 00:24:22 for parameter {'branch': 'bnbgdoba', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:26:46,666 - my_logger - ERROR - Data importe completed at 2024-08-29 00:26:46 for parameter {'branch': 'bnbgdoba', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:26:46,669 - my_logger - ERROR - Data import started for 22 at 2024-08-29 00:26:46 for parameter {'branch': 'bnbgchch', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:26:47,107 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 00:26:47,107 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:26:47,123 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:28:31,879 - my_logger - ERROR - Data importe completed at 2024-08-29 00:28:31 for parameter {'branch': 'bnbgchch', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:28:31,886 - my_logger - ERROR - Data import started for 23 at 2024-08-29 00:28:31 for parameter {'branch': 'bnbgalra', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:29:49,859 - my_logger - ERROR - Data importe completed at 2024-08-29 00:29:49 for parameter {'branch': 'bnbgalra', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:29:49,859 - my_logger - ERROR - Data import started for 24 at 2024-08-29 00:29:49 for parameter {'branch': 'bnvnisha', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:31:35,071 - my_logger - ERROR - Data importe completed at 2024-08-29 00:31:35 for parameter {'branch': 'bnvnisha', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:31:35,071 - my_logger - ERROR - Data import started for 25 at 2024-08-29 00:31:35 for parameter {'branch': 'bnvndoba', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:35:07,282 - my_logger - ERROR - Data importe completed at 2024-08-29 00:35:07 for parameter {'branch': 'bnvndoba', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'DPP10928'} successfully
+2024-08-29 00:35:07,282 - my_logger - ERROR - Data import started for 26 at 2024-08-29 00:35:07 for parameter {'branch': 'bnvnchch', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:35:07,664 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 00:35:07,664 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:35:07,678 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:36:54,608 - my_logger - ERROR - Data importe completed at 2024-08-29 00:36:54 for parameter {'branch': 'bnvnchch', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:36:54,611 - my_logger - ERROR - Data import started for 27 at 2024-08-29 00:36:54 for parameter {'branch': 'bnvnalra', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:38:37,223 - my_logger - ERROR - Data importe completed at 2024-08-29 00:38:37 for parameter {'branch': 'bnvnalra', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:38:37,223 - my_logger - ERROR - Data import started for 28 at 2024-08-29 00:38:37 for parameter {'branch': 'bnkrisha', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:40:46,407 - my_logger - ERROR - Data importe completed at 2024-08-29 00:40:46 for parameter {'branch': 'bnkrisha', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:40:46,407 - my_logger - ERROR - Data import started for 29 at 2024-08-29 00:40:46 for parameter {'branch': 'bnkrdobb', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:40:47,318 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 00:40:47,325 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:40:47,331 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:42:35,717 - my_logger - ERROR - Data importe completed at 2024-08-29 00:42:35 for parameter {'branch': 'bnkrdobb', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:42:35,717 - my_logger - ERROR - Data import started for 30 at 2024-08-29 00:42:35 for parameter {'branch': 'CSB', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:42:36,857 - my_logger - ERROR - Data importe completed at 2024-08-29 00:42:36 for parameter {'branch': 'CSB', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:42:36,857 - my_logger - ERROR - Data import started for 31 at 2024-08-29 00:42:36 for parameter {'branch': 'CSPM', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:42:37,266 - my_logger - ERROR - Data importe completed at 2024-08-29 00:42:37 for parameter {'branch': 'CSPM', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:42:37,282 - my_logger - ERROR - Data import started for 32 at 2024-08-29 00:42:37 for parameter {'branch': 'bnmaisha', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:46:58,657 - my_logger - ERROR - Data importe completed at 2024-08-29 00:46:58 for parameter {'branch': 'bnmaisha', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'IMOA-14515'} successfully
+2024-08-29 00:46:58,659 - my_logger - ERROR - Data import started for 33 at 2024-08-29 00:46:58 for parameter {'branch': 'CSMOAB', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:46:59,098 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 00:46:59,098 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:46:59,098 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:46:59,842 - my_logger - ERROR - Data importe completed at 2024-08-29 00:46:59 for parameter {'branch': 'CSMOAB', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:46:59,842 - my_logger - ERROR - Data import started for 34 at 2024-08-29 00:46:59 for parameter {'branch': 'bnmaeght', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:49:38,183 - my_logger - ERROR - Data importe completed at 2024-08-29 00:49:38 for parameter {'branch': 'bnmaeght', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:49:38,183 - my_logger - ERROR - Data import started for 35 at 2024-08-29 00:49:38 for parameter {'branch': 'bnmadoba_inactive', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:49:38,909 - my_logger - ERROR - Data importe completed at 2024-08-29 00:49:38 for parameter {'branch': 'bnmadoba_inactive', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:49:38,909 - my_logger - ERROR - Data import started for 36 at 2024-08-29 00:49:38 for parameter {'branch': 'bnmacafe', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:51:14,463 - my_logger - ERROR - Data importe completed at 2024-08-29 00:51:14 for parameter {'branch': 'bnmacafe', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:51:14,463 - my_logger - ERROR - Data import started for 37 at 2024-08-29 00:51:14 for parameter {'branch': 'bnmachcf', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:55:12,382 - my_logger - ERROR - Data importe completed at 2024-08-29 00:55:12 for parameter {'branch': 'bnmachcf', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'CHAMOA-8750'} successfully
+2024-08-29 00:55:12,384 - my_logger - ERROR - Data import started for 38 at 2024-08-29 00:55:12 for parameter {'branch': 'bnwkfyle', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:55:12,820 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 00:55:12,820 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:55:12,834 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 00:58:31,960 - my_logger - ERROR - Data importe completed at 2024-08-29 00:58:31 for parameter {'branch': 'bnwkfyle', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'FWD-14669'} successfully
+2024-08-29 00:58:31,960 - my_logger - ERROR - Data import started for 39 at 2024-08-29 00:58:31 for parameter {'branch': 'CSMOM', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 00:58:32,715 - my_logger - ERROR - Data importe completed at 2024-08-29 00:58:32 for parameter {'branch': 'CSMOM', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 00:58:32,715 - my_logger - ERROR - Data import started for 40 at 2024-08-29 00:58:32 for parameter {'branch': 'bnwkcafe', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:00:35,306 - my_logger - ERROR - Data importe completed at 2024-08-29 01:00:35 for parameter {'branch': 'bnwkcafe', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 01:00:35,306 - my_logger - ERROR - Data import started for 41 at 2024-08-29 01:00:35 for parameter {'branch': 'bnwkeght', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:00:35,853 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 01:00:35,853 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 01:00:35,869 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 01:03:52,120 - my_logger - ERROR - Data importe completed at 2024-08-29 01:03:52 for parameter {'branch': 'bnwkeght', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'EHWD-7868'} successfully
+2024-08-29 01:03:52,120 - my_logger - ERROR - Data import started for 42 at 2024-08-29 01:03:52 for parameter {'branch': 'bnwkpout', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:05:28,981 - my_logger - ERROR - Data importe completed at 2024-08-29 01:05:28 for parameter {'branch': 'bnwkpout', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 01:05:28,997 - my_logger - ERROR - Data import started for 43 at 2024-08-29 01:05:28 for parameter {'branch': 'bnwkisha', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:10:06,057 - my_logger - ERROR - Data importe completed at 2024-08-29 01:10:06 for parameter {'branch': 'bnwkisha', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'ISWD-10558'} successfully
+2024-08-29 01:10:06,057 - my_logger - ERROR - Data import started for 44 at 2024-08-29 01:10:06 for parameter {'branch': 'bnmafylg', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:10:06,614 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 01:10:06,622 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 01:10:06,633 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 01:11:54,424 - my_logger - ERROR - Data importe completed at 2024-08-29 01:11:54 for parameter {'branch': 'bnmafylg', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 01:11:54,424 - my_logger - ERROR - Data import started for 45 at 2024-08-29 01:11:54 for parameter {'branch': 'bnmafyls', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:13:30,603 - my_logger - ERROR - Data importe completed at 2024-08-29 01:13:30 for parameter {'branch': 'bnmafyls', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 01:13:30,603 - my_logger - ERROR - Data import started for 46 at 2024-08-29 01:13:30 for parameter {'branch': 'bnmadoba', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:16:43,181 - my_logger - ERROR - Data importe completed at 2024-08-29 01:16:43 for parameter {'branch': 'bnmadoba', 'day': '2024-08-02', 'dayInclusivePayment': True, 'lastKey': 'DMOA-5770'} successfully
+2024-08-29 01:16:43,181 - my_logger - ERROR - Data import started for 47 at 2024-08-29 01:16:43 for parameter {'branch': 'PMCP', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:16:43,687 - my_logger - ERROR - Unauthorized error: Invalid API token or credentials.
+2024-08-29 01:16:43,687 - my_logger - ERROR - Authentication error encountered: Unauthorized error. Attempting to refresh the token.
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 01:16:43,700 - my_logger - ERROR - Retrying with a new token...
+Occurred in method 'GetData_RistaAPI'
+Stack trace:
+Traceback (most recent call last):
+  File "D:\Projects\RistaAPIDataPull\RistaToDB\RistaCalls\RistaAPICalls.py", line 34, in fetch_data
+    raise requests.exceptions.HTTPError("Unauthorized error", response=response)
+requests.exceptions.HTTPError: Unauthorized error
+
+2024-08-29 01:16:44,022 - my_logger - ERROR - Data importe completed at 2024-08-29 01:16:44 for parameter {'branch': 'PMCP', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 01:16:44,022 - my_logger - ERROR - Data import started for 48 at 2024-08-29 01:16:44 for parameter {'branch': 'PMCM', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:16:44,383 - my_logger - ERROR - Data importe completed at 2024-08-29 01:16:44 for parameter {'branch': 'PMCM', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+2024-08-29 01:16:44,383 - my_logger - ERROR - Data import started for 49 at 2024-08-29 01:16:44 for parameter {'branch': 'CSA', 'day': '2024-08-02', 'dayInclusivePayment': True}
+2024-08-29 01:16:44,743 - my_logger - ERROR - Data importe completed at 2024-08-29 01:16:44 for parameter {'branch': 'CSA', 'day': '2024-08-02', 'dayInclusivePayment': True} successfully
+PS D:\Projects\RistaAPIDataPull\RistaToDB> ^C
+PS D:\Projects\RistaAPIDataPull\RistaToDB> 
+PS D:\Projects\RistaAPIDataPull\RistaToDB>  d:; cd 'd:\Projects\RistaAPIDataPull\RistaToDB'; & 'c:\Users\emine\AppData\Local\Programs\Python\Python312\python.exe' 'c:\Users\emine\.vscode\extensions\ms-python.debugpy-2024.10.0-win32-x64\bundled\libs\debugpy\adapter/../..\debugpy\launcher' '54052' '--' 'D:\Projects\RistaAPIDataPull\RistaToDB\RistaToDB.py' 
+2024-08-30 09:34:37,807 - my_logger - ERROR - Data import started for 1 at 2024-08-30 09:34:37 for parameter {'branch': 'bnlkeght', 'day': '2024-08-22', 'dayInclusivePayment': True}
+2024-08-30 09:35:30,329 - my_logger - ERROR - Data importe completed at 2024-08-30 09:35:30 for parameter {'branch': 'bnlkeght', 'day': '2024-08-22', 'dayInclusivePayment': True} successfully
+2024-08-30 09:35:30,329 - my_logger - ERROR - Data import started for 2 at 2024-08-30 09:35:30 for parameter {'branch': 'HO', 'day': '2024-08-22', 'dayInclusivePayment': True}
+2024-08-30 09:35:31,079 - my_logger - ERROR - Data importe completed at 2024-08-30 09:35:31 for parameter {'branch': 'HO', 'day': '2024-08-22', 'dayInclusivePayment': True} successfully
+2024-08-30 09:35:31,079 - my_logger - ERROR - Data import started for 3 at 2024-08-30 09:35:31 for parameter {'branch': 'bnlkisha', 'day': '2024-08-22', 'dayInclusivePayment': True}

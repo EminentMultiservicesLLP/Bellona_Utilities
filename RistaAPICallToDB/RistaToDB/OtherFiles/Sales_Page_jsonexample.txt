@@ -1,0 +1,337 @@
+{
+  "data": [
+    {
+      "branchName": "string",
+      "branchCode": "string",
+      "branchState": "string",
+      "branchTIN": "string",
+      "invoiceNumber": "string",
+      "orderNumber": "string",
+      "statementNumber": "string",
+      "splitInvoiceNumbers": [
+        "string"
+      ],
+      "invoiceDate": "string",
+      "invoiceDay": "string",
+      "einvoiceInfo": {
+        "irnNumber": "string",
+        "irnStatus": "string"
+      },
+      "createdDate": "string",
+      "modifiedDate": "string",
+      "deviceLabel": "string",
+      "invoiceType": "Sale",
+      "status": "Open",
+      "fulfillmentStatus": "Confirmed",
+      "sourceInfo": {
+        "companyName": "string",
+        "invoiceNumber": "string",
+        "invoiceDate": "string",
+        "callbackURL": "string",
+        "callbackHeaders": {},
+        "source": "string",
+        "sourceOutletId": "string",
+        "outletId": "string",
+        "isEditable": true,
+        "verifyCoupons": true,
+        "isEcomOrder": true
+      },
+      "originalSaleInfo": {
+        "invoiceNumber": "string"
+      },
+      "delivery": {
+        "title": "string",
+        "advanceOrder": true,
+        "name": "string",
+        "email": "string",
+        "phoneNumber": "string",
+        "mode": "Pickup",
+        "address": {
+          "label": "string",
+          "addressLine": "string",
+          "city": "string",
+          "state": "string",
+          "country": "string",
+          "zip": "string",
+          "landmark": "string",
+          "latitude": 0,
+          "longitude": 0
+        },
+        "deliveryDate": "string"
+      },
+      "deliveryBy": {
+        "name": "string",
+        "email": "string",
+        "phoneNumber": "string"
+      },
+      "label": "string",
+      "labelGroup": "string",
+      "sessionLabel": "string",
+      "personCount": 0,
+      "customer": {
+        "id": "string",
+        "title": "string",
+        "name": "string",
+        "email": "string",
+        "phoneNumber": "string",
+        "taxId": "string"
+      },
+      "saleBy": "string",
+      "saleByUserId": "string",
+      "channel": "string",
+      "currency": "string",
+      "itemCount": 0,
+      "items": [
+        {
+          "shortName": "string",
+          "longName": "string",
+          "variants": "string",
+          "skuCode": "string",
+          "barCode": "string",
+          "categoryName": "string",
+          "subCategoryName": "string",
+          "brandName": "string",
+          "taxCode": "string",
+          "accountName": "string",
+          "itemNature": "Goods",
+          "quantity": 0,
+          "unitPrice": 0,
+          "overridden": true,
+          "measuringUnit": "string",
+          "itemAmount": 0,
+          "optionAmount": 0,
+          "discountAmount": 0,
+          "factoredDiscountAmount": 0,
+          "itemTotalAmount": 0,
+          "grossAmount": 0,
+          "baseGrossAmount": 0,
+          "netDiscountAmount": 0,
+          "baseNetDiscountAmount": 0,
+          "netAmount": 0,
+          "baseNetAmount": 0,
+          "taxAmountIncluded": 0,
+          "taxAmountExcluded": 0,
+          "taxAmount": 0,
+          "baseTaxAmount": 0,
+          "itemCost": 0,
+          "note": "string",
+          "createdBy": "string",
+          "createdTime": "string",
+          "options": [
+            {
+              "type": "Option",
+              "name": "string",
+              "itemName": "string",
+              "variants": "string",
+              "optionId": "string",
+              "skuCode": "string",
+              "quantity": 0,
+              "unitPrice": 0,
+              "amount": 0,
+              "grossAmount": 0,
+              "netDiscountAmount": 0,
+              "netAmount": 0,
+              "taxAmount": 0,
+              "categoryName": "string",
+              "subCategoryName": "string",
+              "brandName": "string",
+              "taxCode": "string",
+              "accountName": "string",
+              "taxes": [
+                {
+                  "name": "string",
+                  "percentage": 0,
+                  "saleAmount": 0,
+                  "amountIncluded": 0,
+                  "amountExcluded": 0,
+                  "amount": 0
+                }
+              ]
+            }
+          ],
+          "discounts": [
+            {
+              "name": "string",
+              "type": "Absolute",
+              "rate": 0,
+              "saleAmount": 0,
+              "amount": 0,
+              "loyaltyPoints": 0,
+              "coupon": "string",
+              "couponProvider": "string",
+              "campaignName": "string",
+              "reason": "string",
+              "appliedBy": "string"
+            }
+          ],
+          "taxes": [
+            {
+              "name": "string",
+              "percentage": 0,
+              "saleAmount": 0,
+              "amountIncluded": 0,
+              "amountExcluded": 0,
+              "amount": 0
+            }
+          ],
+          "itemLog": [
+            {
+              "reason": "string",
+              "remarks": "string",
+              "updatedBy": "string",
+              "updatedTime": "string",
+              "modifications": [
+                {
+                  "note": "string"
+                }
+              ]
+            }
+          ],
+          "eventLog": [
+            {
+              "status": "Processed",
+              "note": "string",
+              "eventByUserName": "string",
+              "eventDate": "string"
+            }
+          ],
+          "batches": [
+            {
+              "batchNumber": "string",
+              "expiryDate": "string",
+              "quantity": 0,
+              "supplierBatchNumber": "string"
+            }
+          ],
+          "kotNumber": "string",
+          "kotGroup": "string",
+          "kotTimestamp": "string",
+          "kotStatus": "string"
+        }
+      ],
+      "itemTotalAmount": 0,
+      "directChargeAmount": 0,
+      "chargeAmount": 0,
+      "discountAmount": 0,
+      "itemDiscountAmount": 0,
+      "totalDiscountAmount": 0,
+      "taxAmountIncluded": 0,
+      "taxAmountExcluded": 0,
+      "taxAmount": 0,
+      "grossAmount": 0,
+      "netDiscountAmount": 0,
+      "netDirectChargeAmount": 0,
+      "netAmount": 0,
+      "netChargeAmount": 0,
+      "billAmount": 0,
+      "roundOffAmount": 0,
+      "billRoundedAmount": 0,
+      "tipAmount": 0,
+      "totalAmount": 0,
+      "totalCost": 0,
+      "note": "string",
+      "charges": [
+        {
+          "name": "string",
+          "type": "Absolute",
+          "rate": 0,
+          "saleAmount": 0,
+          "amount": 0,
+          "taxAmountIncluded": 0,
+          "taxAmountExcluded": 0,
+          "taxAmount": 0,
+          "isDirectCharge": true,
+          "taxes": [
+            {
+              "name": "string",
+              "percentage": 0,
+              "saleAmount": 0,
+              "amountIncluded": 0,
+              "amountExcluded": 0,
+              "amount": 0
+            }
+          ]
+        }
+      ],
+      "discounts": [
+        {
+          "name": "string",
+          "type": "Absolute",
+          "rate": 0,
+          "saleAmount": 0,
+          "amount": 0,
+          "loyaltyPoints": 0,
+          "coupon": "string",
+          "couponProvider": "string",
+          "campaignName": "string",
+          "reason": "string",
+          "appliedBy": "string"
+        }
+      ],
+      "taxes": [
+        {
+          "name": "string",
+          "percentage": 0,
+          "saleAmount": 0,
+          "itemTaxIncluded": 0,
+          "itemTaxExcluded": 0,
+          "chargeTaxIncluded": 0,
+          "chargeTaxExcluded": 0,
+          "amountIncluded": 0,
+          "amountExcluded": 0,
+          "amount": 0
+        }
+      ],
+      "payments": [
+        {
+          "mode": "string",
+          "subMode": "string",
+          "amount": 0,
+          "reference": "string",
+          "note": "string",
+          "postedDate": "string"
+        }
+      ],
+      "overallRefunds": [
+        {
+          "mode": "string",
+          "refundAmount": 0,
+          "paymentId": "string",
+          "returnToCustomer": true,
+          "creditToCustomerPrepaidBalance": true
+        }
+      ],
+      "loyalties": [
+        {
+          "type": "Earned",
+          "points": 0,
+          "remarks": "string"
+        }
+      ],
+      "url": "string",
+      "statusInfo": {
+        "reason": "string",
+        "remarks": "string"
+      },
+      "eventLog": [
+        {
+          "status": "Created",
+          "note": "string",
+          "eventByUserName": "string",
+          "eventDate": "string"
+        }
+      ],
+      "tags": [
+        "string"
+      ],
+      "resourceInfo": {
+        "resourceId": "string",
+        "resourceName": "string",
+        "groupSize": 0,
+        "resourceGroupName": "string"
+      },
+      "accountingRoundOff": 0
+    }
+  ],
+  "lastKey": "string"
+}
