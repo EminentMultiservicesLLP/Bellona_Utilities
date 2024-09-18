@@ -1,4 +1,4 @@
---exec dbo.dbsp_GetDSR_Summary @Startdt = '2024-09-14',  @Enddt = '2024-09-14', @branchCode='bnlpchcf'
+--exec dbo.dbsp_GetDSR_Summary @Startdt = '2024-09-14',  @Enddt = '2024-09-14', @branchCode='bnmaisha'
 
 CREATE or alter PROCEDURE dbo.dbsp_GetDSR_Summary
 (	@Startdt datetime, @Enddt  datetime, @branchCode varchar(20) = null )
@@ -7,6 +7,7 @@ BEGIN
 	/** Get Sale Main Category details 
 		1.	Here we are taking Netamount of each Item category like Foodsale, Beverage sale...
 		2.	total amount is Netamount + charges(service charge /packaging charge..)
+			
 	*******/
 	;WITH CTE_ITEM_SALE(FOODSALE,BEVERAGESALE,LIQUORSALE, TOBACOSALE,OTHERSALE)
 	AS (
@@ -18,23 +19,51 @@ BEGIN
 			SUM(CASE WHEN AccountName NOT IN ('Food Sale', 'Beverage Sale', 'TOBACO SALE', 'LIQUOR SALE') THEN SIT.NetAmount ELSE 0 END) AS 'OTHER SALE'
 		FROM Rista_SaleInvoices (NOLOCK) SI INNER JOIN Rista_SaleItems (NOLOCK) SIT ON SIT.InvoiceID = SI.InvoiceID
 		WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt and SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
+			  AND SI.InvoiceType <> 'NC'
 		--WHERE SI.InvoiceDay = '2024-09-14' AND branchCode = 'bnlpchcf'
 	),
 	CTE_NETSALE AS 
 	(
 		SELECT	SUM(SI.NETAMOUNT) NETSALE,
 				SUM(SI.NetDiscountAmount) NETDISCOUNTAMOUNT,
-				SUM(SI.NetChargeAmount) NETCHARGEAMOUNT,
-				SUM(SI.TotalAmount) AS TOTALSALEWITHSC
+				SUM(SI.NetChargeAmount) NETCHARGEAMOUNT
+				/*,
+				--SUM(SI.TotalAmount) AS TOTALSALEWITHSC,
+				SUM(SI.GrossAmount) AS TOTALGROSS */
 		FROM Rista_SaleInvoices (NOLOCK) SI
 		WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt  and SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
+				 AND SI.InvoiceType <> 'NC'
 		--WHERE SI.InvoiceDay = '2024-09-14' AND branchCode = 'bnlpchcf'	
 	)
 	SELECT	FOODSALE 'FOOD SALE',BEVERAGESALE 'BEVERAGE SALE',LIQUORSALE 'LIQUOR SALE', TOBACOSALE 'TOBACO SALE',OTHERSALE 'OTHER SALE',
-			CNS.NETDISCOUNTAMOUNT 'DISCOUNT AMOUNT', CNS.NETCHARGEAMOUNT 'SERVICE CHARGE AMOUNT', CNS.NETSALE 'SALES NET TOTAL', CNS.TOTALSALEWITHSC 'SALES TOTAL WITH SC'
+			CNS.NETDISCOUNTAMOUNT 'DISCOUNT AMOUNT', CNS.NETCHARGEAMOUNT 'SERVICE CHARGE AMOUNT', CNS.NETSALE 'SALES NET TOTAL', 
+			(CNS.NETSALE + cns.NETCHARGEAMOUNT) 'SALES TOTAL WITH SC'
 	FROM CTE_ITEM_SALE CIS
 	LEFT JOIN CTE_NETSALE CNS ON 1 = 1;
+
+	/** Delivery for Food Sale  and Beverage sale ***/
+	SELECT 	
+		SUM(CASE WHEN AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS 'DELIVERY FOOD SALE',
+		SUM(CASE WHEN AccountName = 'Beverage Sale' THEN SIT.NetAmount ELSE 0 END) AS 'DELIVERY BEVERAGE SALE'
+	FROM Rista_SaleInvoices (NOLOCK) SI 
+	INNER JOIN Rista_SaleSourceInfo (NOLOCK) SSI  ON SI.InvoiceID = SSI.InvoiceID AND SSI.IsEcomOrder = 1
+	INNER JOIN Rista_SaleItems (NOLOCK) SIT ON SIT.InvoiceID = SI.InvoiceID
+	WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt and SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
+			AND SI.InvoiceType <> 'NC'
+	--WHERE SI.InvoiceDay = '2024-09-14' AND branchCode = 'bnlpchcf'
 	
+	/** Dine-in Sale details category wise ****/
+	SELECT 	
+		SUM(CASE WHEN AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS 'DINE IN FOOD SALE',
+		SUM(CASE WHEN AccountName = 'Beverage Sale' THEN SIT.NetAmount ELSE 0 END) AS 'DINE IN BEVERAGE SALE',
+		SUM(CASE WHEN AccountName = 'LIQUOR SALE' THEN SIT.NetAmount ELSE 0 END) AS 'DINE IN LIQUOR SALE',
+		SUM(CASE WHEN AccountName = 'TOBACO SALE' THEN SIT.NetAmount ELSE 0 END) AS 'DINE IN TOBACO SALE',
+		SUM(CASE WHEN AccountName NOT IN ('Food Sale', 'Beverage Sale', 'TOBACO SALE', 'LIQUOR SALE') THEN SIT.NetAmount ELSE 0 END) AS 'DINE IN OTHER SALE'
+	FROM Rista_SaleInvoices (NOLOCK) SI INNER JOIN Rista_SaleItems (NOLOCK) SIT ON SIT.InvoiceID = SI.InvoiceID
+	LEFT JOIN Rista_SaleSourceInfo (NOLOCK) SSI  ON SI.InvoiceID = SSI.InvoiceID AND SSI.IsEcomOrder = 1
+	WHERE	SI.InvoiceDay BETWEEN @Startdt and @Enddt and SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
+			AND SSI.InvoiceID IS NULL AND SI.InvoiceType <> 'NC'
+
 
 	/*** Dine In Covers 
 		1.	All delivery order from apps like Zomato, Swiggy.. are being captured in Rista_SaleSourceInfo table where IsEcomOrder field is 1
@@ -57,11 +86,12 @@ BEGIN
 		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) SD  ON SI.InvoiceID = SD.InvoiceID
 		WHERE	SI.InvoiceDay BETWEEN @Startdt and @Enddt /*AND SD.InvoiceID IS NULL AND SI.PERSONCOUNT > 0 */
 				 and SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
+				  AND SI.InvoiceType <> 'NC'
 		--WHERE SI.InvoiceDay = '2024-09-14' AND branchCode = 'bnlpchcf' AND SI.PERSONCOUNT > 0
 	)
 	SELECT	
-			TOTALCOVERS + TotalEcomOrder 'DINE IN COVERS',
-			TOTALSALE / (TOTALCOVERS + TotalEcomOrder) 'APC DINE IN'
+			TOTALCOVERS 'DINE IN COVERS',
+			TOTALSALE / (TOTALCOVERS) 'APC DINE IN'
 	FROM CTE_APCDINEIN
 	
 
@@ -83,6 +113,7 @@ BEGIN
 	--INNER JOIN DBO.Rista_SaleDelivery (NOLOCK) SD ON SI.InvoiceID = SD.InvoiceID
 	WHERE	SI.InvoiceDay BETWEEN @Startdt and @Enddt AND SSI.ISECOMORDER = 1
 			 and SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
+			  AND SI.InvoiceType <> 'NC'
 	--WHERE SI.InvoiceDay = '2024-09-14' AND branchCode = 'bnlpchcf'
 	
 
@@ -102,7 +133,7 @@ BEGIN
 		INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
 		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
 		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
-				AND rsp.mode like '%Zomato%'
+				AND rsp.mode like '%Zomato%'  AND RSI.InvoiceType <> 'NC'
 				and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
 	),
 	SalesData_DINEOUT AS (
@@ -114,7 +145,7 @@ BEGIN
 		INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
 		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
 		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
-				AND rsp.mode like '%Dine%Out%'
+				AND rsp.mode like '%Dine%Out%'  AND RSI.InvoiceType <> 'NC'
 				and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
 	),
 	SalesData_EAZYDINER AS (
@@ -126,7 +157,7 @@ BEGIN
 		INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
 		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
 		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
-				AND rsp.mode like '%EASY%DINER%'
+				AND rsp.mode like '%EASY%DINER%'   AND RSI.InvoiceType <> 'NC'
 				and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
 	),
 	SalesData_ALL AS (
@@ -137,7 +168,7 @@ BEGIN
 		FROM Rista_SaleInvoices (NOLOCK) rsi
 		INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
 		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
-		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
+		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL   AND RSI.InvoiceType <> 'NC'
 				and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
 	)
 	-- Final Select Statement to produce single row data
@@ -153,11 +184,11 @@ BEGIN
 		dineout.DINEINBILLS AS DINEOUT_DINEIN_BILLS,
     
 		-- EazyDiner Data
-		eazydiner.DINEINSALE AS EAZYDINER_DINEIN_SALE,
-		eazydiner.DINEINCOVERS AS EAZYDINER_DINEIN_COVERS,
-		eazydiner.DINEINBILLS AS EAZYDINER_DINEIN_BILLS,
+		eazydiner.DINEINSALE AS EASYDINER_DINEIN_SALE,
+		eazydiner.DINEINCOVERS AS EASYDINER_DINEIN_COVERS,
+		eazydiner.DINEINBILLS AS EASYDINER_DINEIN_BILLS,
 
-		-- Other Data (ALL - Zomato - Dineout - EazyDiner)
+		-- Other Data (ALL - Zomato - Dineout - EasyDiner)
 		(all_data.DINEINSALE 
 		 - ISNULL(zomato.DINEINSALE, 0) 
 		 - ISNULL(dineout.DINEINSALE, 0) 
