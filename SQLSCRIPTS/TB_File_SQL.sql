@@ -2,6 +2,7 @@
 drop table TB_TrialBalance;
 drop table TB_Particulars;
 drop table TB_MISHead;
+
 **/
 go
 
@@ -49,4 +50,14 @@ select * from Mst_Properties
 SELECT * FROM TB_MISHead;
 SELECT * FROM TB_Particulars;
 SELECT * FROM TB_TrialBalance;
+SELECT * FROM error_log
+
+
+/***
+truncate table  TB_MISHead;
+truncate table  TB_Particulars;
+truncate table TB_TrialBalance;
+truncate table error_log
+
+**/
 
