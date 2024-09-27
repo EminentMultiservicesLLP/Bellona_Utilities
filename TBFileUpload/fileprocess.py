@@ -68,9 +68,16 @@ def Validate_Data(code, particulars, nature, mis_head, index, row, columns):
                 float(row[col])
             except ValueError:
                 raise ValueError(f"Invalid value in column '{col}' at row {index+1}")
+            
+        return True
     except ValueError as ve:
         logging.error(str(ve))
         log_error_to_db( str(ve), DATA_START_ROW+ (index-1))
+        return False
+    except Exception as e:
+        logging.error(str(e))
+        log_error_to_db( str(e), DATA_START_ROW+ (index-1))
+        return False
 
 # Process the Excel file and insert data into the database
 def process_file(file_path):
@@ -99,44 +106,52 @@ def process_file(file_path):
 
                     logging.info(f"Data at row {index} are Code:{code}, particulars:{particulars}, nature:{nature}, mis head:{mis_head}")
 
-                    #validate basis data expected for fields
-                    Validate_Data(code, particulars, nature, mis_head, index, row, df.columns)
-                    logging.info("Data Validation at row index {index} completed")
-                    
-                    # Insert or get MIS_head ID
-                    mis_head_id = dbOperations.insert_or_get_id(cursor, "TB_MISHead", "head_name", mis_head, {'head_name': mis_head, 'nature': nature}, index)
-                    logging.info(f"Received MIS Head ID {mis_head}")
-
-                    # Insert or get Particulars ID
-                    particulars_id =  dbOperations.insert_or_get_id(cursor, "TB_Particulars", "particulars", particulars, {'code': code, 'particulars': particulars}, index)
-                    logging.info(f"Received Particulars ID {particulars_id}")
-
-                    if mis_head_id and particulars_id:
-                        # For each branch column start position
-                        for branch_col in df.columns[start_branchcolumn_idex:]:
-                            
-                            branch_id = branch_col  # Assuming branch name or id is in the column header
-                            tb_amount = row[branch_col]
-                            tb_date = pd.Timestamp.today().date()  # Or adjust as per file
-                            
-                            # Insert into TB_TrialBalance
-                            try:
-                                cursor.execute("""
-                                    INSERT INTO TB_TrialBalance (branch_id, head_id, particulars_id, tb_date, tb_amount)
-                                    VALUES (?, ?, ?, ?, ?)
-                                """, (branch_id, mis_head_id, particulars_id, tb_date, tb_amount))
-                                logging.info(f"Data inserted for Branch {branch_id}, MIS Head {mis_head_id}, Particulars {particulars_id}.")
-                            except pyodbc.Error as e:
-                                logging.error(f"Error inserting trial balance for row index {index}: {e}")
-                                log_error_to_db(f"Error inserting trial balance for row index {index}: {e}", DATA_START_ROW+ (index-1), start_branchcolumn_idex + col_index)
-
-                        logging.info(f"Commiting single row Data into DB for MIS Head {mis_head_id}, Particulars {particulars_id}.")
+                    #break the loop as soon as we hit the total row
+                    if (particulars.strip().lower() == "total"): 
+                        logging.debug("Reached at Total row at index {index}")
                         conn.commit()
+                        break
+
+                    #validate basis data expected for fields
+                    if(Validate_Data(code, particulars, nature, mis_head, index, row, df.columns)):
+                        logging.debug("Data Validation at row index {index} completed")
+                        
+                        # Insert or get MIS_head ID
+                        mis_head_id = dbOperations.insert_or_get_id(cursor, "TB_MISHead", "head_name", mis_head, {'head_name': mis_head, 'nature': nature}, index)
+                        logging.debug(f"Received MIS Head ID {mis_head}")
+
+                        # Insert or get Particulars ID
+                        particulars_id =  dbOperations.insert_or_get_id(cursor, "TB_Particulars", "particulars", particulars, {'code': code, 'particulars': particulars}, index)
+                        logging.debug(f"Received Particulars ID {particulars_id}")
+
+                        if mis_head_id and particulars_id:
+                            # For each branch column start position
+                            for branch_col in df.columns[start_branchcolumn_idex:]:
+                                
+                                branch_id = branch_col  # Assuming branch name or id is in the column header
+                                tb_amount = row[branch_col]
+                                tb_date = pd.Timestamp.today().date()  # Or adjust as per file
+                                
+                                # Insert into TB_TrialBalance
+                                try:
+                                    cursor.execute("""
+                                        INSERT INTO TB_TrialBalance (branch_id, head_id, particulars_id, tb_date, tb_amount)
+                                        VALUES (?, ?, ?, ?, ?)
+                                    """, (branch_id, mis_head_id, particulars_id, tb_date, tb_amount))
+                                    logging.info(f"Data inserted for Branch {branch_id}, MIS Head {mis_head_id}, Particulars {particulars_id}.")
+                                except pyodbc.Error as e:
+                                    logging.error(f"Error inserting trial balance for row index {index}: {e}")
+                                    log_error_to_db(f"Error inserting trial balance for row index {index}: {e}", DATA_START_ROW+ (index-1), start_branchcolumn_idex + col_index)
+
+                            logging.info(f"Commiting single row Data into DB for MIS Head {mis_head_id}, Particulars {particulars_id}.")
+                            conn.commit()
+                    
                 except ValueError as v:
                     logging.error(f"Value error: {v}")
                 except Exception as e:
                     logging.error(f"Error processing file {file_path}: {e}")        
     except Exception as e:
         logging.error(f"Error processing file {file_path}: {e}")
+
 
 

@@ -62,7 +62,7 @@ ELSE
 GO
 
 
-CREATE or alter PROCEDURE dbo.dbsp_GetDSR_Summary
+CREATE or ALTER   PROCEDURE [dbo].[dbsp_GetDSR_Summary]
 (	@Startdt datetime, @Enddt  datetime, @branchCode varchar(20) = null )
 AS
 BEGIN
@@ -73,10 +73,9 @@ BEGIN
 		
 		Note: There are few sales which are marked as NC (No Charge), we need to exclude those from total sale for food, beverage....
 	*******/
-	DECLARE @InvoiceDay NVARCHAR(50);
-	DECLARE @Branch NVARCHAR(50);
-	DECLARE @InvoiceNumber NVARCHAR(50);
-
+	DECLARE @BranchName NVARCHAR(255);
+	SELECT @BranchName = A.OutletName FROM MST_OUTLET A WHERE OUTLETCODE = @branchCode;
+	
 	-- Sales fields
 	DECLARE @FoodSaleNet DECIMAL(18, 2), @BeverageSaleNet DECIMAL(18, 2), @LiquorSaleNet DECIMAL(18, 2), @TobaccoSaleNet DECIMAL(18, 2);
 	DECLARE @OtherSale1Net DECIMAL(18, 2), @DiscountAmount DECIMAL(18, 2), @ServiceChargeAmount DECIMAL(18, 2), @DirectCharge DECIMAL(18, 2);
@@ -137,8 +136,8 @@ BEGIN
 		For delivery there is no service charge, only packaging charge being added as 25rs as of now 18-09-2024
 		So for delivery (all item net amount) + packaging charge
 	***/
-	SELECT	@DeliveryFoodSaleNet = CASE WHEN SUM(A.DeliveryFoodSale) > 0 THEN SUM(A.DeliveryFoodSale) + SUM(B.NetDirectChargeAmount) ELSE 0 END,
-			@DeliveryBeverageSaleNet = CASE WHEN SUM(A.DeliveryFoodSale) = 0 AND SUM(A.DeliveryBeverageSale) > 0 THEN SUM(A.DeliveryBeverageSale) + SUM(B.NetDirectChargeAmount) ELSE 0 END
+	SELECT	@DeliveryFoodSaleNet = CASE WHEN SUM(A.DeliveryFoodSale) > 0 THEN SUM(A.DeliveryFoodSale) ELSE 0 END,
+			@DeliveryBeverageSaleNet = CASE WHEN SUM(A.DeliveryFoodSale) = 0 AND SUM(A.DeliveryBeverageSale) > 0 THEN SUM(A.DeliveryBeverageSale) ELSE 0 END
 	FROM 
 	(	SELECT si.InvoiceID,
 			SUM(CASE WHEN AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS DeliveryFoodSale,
@@ -166,7 +165,7 @@ BEGIN
 	WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt 
 		AND SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
 		AND SSI.InvoiceID IS NULL 
-		AND SI.InvoiceType <> 'NC'  AND SI.Status <> 'Cancelled';
+		AND SI.InvoiceType <> 'NC'  AND SI.Status <> 'Cancelled' AND SI.Channel like 'Dine%';
 			
 /*** Dine In Covers 
 		1.	All delivery order from apps like Zomato, Swiggy.. are being captured in Rista_SaleSourceInfo table where IsEcomOrder field is 1
@@ -188,7 +187,7 @@ BEGIN
 		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) SD  ON SI.InvoiceID = SD.InvoiceID
 		WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt 
 			AND SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
-			AND SI.InvoiceType <> 'NC'  AND SI.Status <> 'Cancelled'
+			AND SI.InvoiceType <> 'NC'  AND SI.Status <> 'Cancelled' AND SI.Channel like 'Dine%'
 	)
 	SELECT	
 		@DineInCovers = TotalCovers,
@@ -199,20 +198,20 @@ BEGIN
 		All delivery order being captured in [Rista_SaleSourceInfo] table where IsECOMorder flag is 1
 	*/
 	SELECT 	
-		@ZomatoDeliveryBillsNo =ISNULL(SUM(CASE WHEN Channel LIKE '%ZOMATO%' THEN 1 ELSE 0 END), 0) AS ZomatoDeliveryBillsNo,
-		@ZomatoDeliverySaleNet = ISNULL(SUM(CASE WHEN Channel LIKE '%ZOMATO%' THEN SI.NetAmount ELSE 0 END), 0) AS ZomatoDeliverySale,
-		@SwiggyDeliveryBillsNo =ISNULL(SUM(CASE WHEN Channel LIKE '%SWIGGY%' THEN 1 ELSE 0 END), 0) AS SwiggyDeliveryBillsNo,
-		@SwiggyDeliverySaleNet = ISNULL(SUM(CASE WHEN Channel LIKE '%SWIGGY%' THEN SI.NetAmount ELSE 0 END), 0) AS SwiggyDeliverySale,
-		@DeliveryChannel3BillsNo = ISNULL(SUM(CASE WHEN Channel NOT LIKE '%ZOMATO%' AND Channel NOT LIKE '%SWIGGY%' THEN 1 ELSE 0 END), 0) AS DeliveryChannel3BillsNo,
-		@DeliveryChannel3SaleNet = ISNULL(SUM(CASE WHEN Channel NOT LIKE '%ZOMATO%' AND Channel NOT LIKE '%SWIGGY%' THEN SI.NetAmount ELSE 0 END), 0) AS DeliveryChannel3Sale,
-		@DeliveryBillsTotalNo = COUNT(DISTINCT SI.InvoiceID) AS DeliveryBillsTotalNo,
-		@DeliveryBillsAmountTotal = ISNULL(SUM(SI.NETAMOUNT), 0) AS DeliveryBillsAmountTotal
+		@ZomatoDeliveryBillsNo =ISNULL(SUM(CASE WHEN Channel LIKE '%ZOMATO%' THEN 1 ELSE 0 END), 0),
+		@ZomatoDeliverySaleNet = ISNULL(SUM(CASE WHEN Channel LIKE '%ZOMATO%' THEN SI.NetAmount ELSE 0 END), 0),
+		@SwiggyDeliveryBillsNo =ISNULL(SUM(CASE WHEN Channel LIKE '%SWIGGY%' THEN 1 ELSE 0 END), 0),
+		@SwiggyDeliverySaleNet = ISNULL(SUM(CASE WHEN Channel LIKE '%SWIGGY%' THEN SI.NetAmount ELSE 0 END), 0),
+		@DeliveryChannel3BillsNo = ISNULL(SUM(CASE WHEN Channel NOT LIKE '%ZOMATO%' AND Channel NOT LIKE '%SWIGGY%' THEN 1 ELSE 0 END), 0),
+		@DeliveryChannel3SaleNet = ISNULL(SUM(CASE WHEN Channel NOT LIKE '%ZOMATO%' AND Channel NOT LIKE '%SWIGGY%' THEN SI.NetAmount ELSE 0 END), 0),
+		@DeliveryBillsTotalNo = COUNT(DISTINCT SI.InvoiceID),
+		@DeliveryBillsAmountTotal = ISNULL(SUM(SI.NETAMOUNT), 0)
 	FROM Rista_SaleInvoices (NOLOCK) SI 
 	INNER JOIN [dbo].[Rista_SaleSourceInfo] (NOLOCK) SSI ON SI.InvoiceID = SSI.InvoiceID
 	WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt 
 		AND SSI.IsEcomOrder = 1
 		AND SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
-			AND SI.InvoiceType <> 'NC'  AND SI.Status <> 'Cancelled'
+			AND SI.InvoiceType <> 'NC'  AND SI.Status <> 'Cancelled';
 				
 	/** Payment via partners 
 		Table booking through Zomato/Swiggy is not supported in rista..means...   any table orders would be of In store dine in ...
@@ -236,7 +235,7 @@ BEGIN
 		INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
 		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
 		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
-				AND rsp.mode like '%Zomato%PRO%'  AND RSI.InvoiceType <> 'NC'   AND RSI.Status <> 'Cancelled'
+				AND rsp.mode like '%Zomato%PRO%'  AND RSI.InvoiceType <> 'NC'   AND RSI.Status <> 'Cancelled' 
 				and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
 	),
 	SalesData_DINEOUT AS (
@@ -281,28 +280,28 @@ BEGIN
 	-- Final Select Statement to produce single row data
 	SELECT
 		-- Zomato Data
-		@ZomatoDineInSaleNet =zomato.DINEINSALE AS ZOMATODINEINSALE,
-		@ZomatoDineInCovers = zomato.DINEINCOVERS AS ZOMATODINEINCOVERS,
-		@ZomatoDineInBills = zomato.DINEINBILLS AS ZOMATODINEINBILLS,
-		@AvgBillAmountZomato= (zomato.DINEINSALE / (case zomato.DINEINBILLS when 0 then 1 else zomato.DINEINBILLS end)) AS AVGBILLAMOUNTZOMATO,
+		@ZomatoDineInSaleNet =zomato.DINEINSALE,
+		@ZomatoDineInCovers = zomato.DINEINCOVERS,
+		@ZomatoDineInBills = zomato.DINEINBILLS,
+		@AvgBillAmountZomato= (zomato.DINEINSALE / (case zomato.DINEINBILLS when 0 then 1 else zomato.DINEINBILLS end)),
 
 		-- Dineout Data
-		@DineOutDineInSaleNet =dineout.DINEINSALE AS DINEOUTDINEINSALE,
-		@DineOutDineInCovers = dineout.DINEINCOVERS AS DINEOUTDINEINCOVERS,
-		@DineOutDineInBills = dineout.DINEINBILLS AS DINEOUTDINEINBILLS,
-		@AvgBillAmountDineOut = (dineout.DINEINSALE / (case dineout.DINEINBILLS when 0 then 1 else dineout.DINEINBILLS end)) AS AVGBILLAMOUNTDINEOUT,
+		@DineOutDineInSaleNet =dineout.DINEINSALE,
+		@DineOutDineInCovers = dineout.DINEINCOVERS,
+		@DineOutDineInBills = dineout.DINEINBILLS,
+		@AvgBillAmountDineOut = (dineout.DINEINSALE / (case dineout.DINEINBILLS when 0 then 1 else dineout.DINEINBILLS end)),
     
 		-- EazyDiner Data
-		@EazyDinerDineInSaleNet = eazydiner.DINEINSALE AS EASYDINERDINEINSALE,
-		@EazyDinerDineInCovers = eazydiner.DINEINCOVERS AS EASYDINERDINEINCOVERS,
-		@EazyDinerDineInBills = eazydiner.DINEINBILLS AS EASYDINERDINEINBILLS,
-		@AvgBillAmountEazyDiner = (eazydiner.DINEINSALE / (case eazydiner.DINEINBILLS when 0 then 1 else eazydiner.DINEINBILLS end)) AS AVGBILLAMOUNTEASYDINER,
+		@EazyDinerDineInSaleNet = eazydiner.DINEINSALE,
+		@EazyDinerDineInCovers = eazydiner.DINEINCOVERS,
+		@EazyDinerDineInBills = eazydiner.DINEINBILLS,
+		@AvgBillAmountEazyDiner = (eazydiner.DINEINSALE / (case eazydiner.DINEINBILLS when 0 then 1 else eazydiner.DINEINBILLS end)),
 	
 		-- Other Data (ALL - Zomato - Dineout - EasyDiner)
-		@OtherAggregatorDineInSaleNet = other.DINEINSALE AS otherDINEINSALE,
-		@OtherAggregatorDineInCovers = other.DINEINCOVERS AS otherDINEINCOVERS,
-		@OtherAggregatorDineInBills= other.DINEINBILLS AS otherDINEINBILLS,
-		@AvgBillAmountOtherAggregator = (other.DINEINSALE / (case other.DINEINBILLS when 0 then 1 else other.DINEINBILLS end)) AS AVGBILLAMOUNTOTHER
+		@OtherAggregatorDineInSaleNet = other.DINEINSALE,
+		@OtherAggregatorDineInCovers = other.DINEINCOVERS,
+		@OtherAggregatorDineInBills= other.DINEINBILLS,
+		@AvgBillAmountOtherAggregator = (other.DINEINSALE / (case other.DINEINBILLS when 0 then 1 else other.DINEINBILLS end))
 
 	FROM  SalesData_OTHER other
 	LEFT JOIN SalesData_ZOMATO zomato ON 1 = 1
@@ -310,9 +309,8 @@ BEGIN
 	LEFT JOIN SalesData_EAZYDINER eazydiner ON 1 = 1;
 
 	SELECT 
-    @InvoiceDay AS InvoiceDay,
-    @Branch AS Branch,
-    @InvoiceNumber AS InvoiceNumber,
+    @BranchName AS BranchName,
+    @branchCode AS BranchCode,
 
     -- Sales fields
     @FoodSaleNet AS FoodSaleNet,

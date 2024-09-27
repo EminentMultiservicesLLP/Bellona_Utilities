@@ -35,30 +35,40 @@ def execute_stored_procedure(stored_procedure, params, returnAsTuple_KeyValue = 
             # For example, if the procedure has 3 parameters, this will be: EXEC stored_procedure ?, ?, ?
             placeholders = ', '.join('?' * len(params)) if params  else ''
 
-            sql = f"EXEC {stored_procedure} {placeholders if placeholders and placeholders.strip() != '' else ''}"
-
+            #sql = f"Exec {stored_procedure} ({placeholders if placeholders and placeholders.strip() != '' else ''})"
+            sql = f"{{CALL {stored_procedure}({placeholders if placeholders and placeholders.strip() != '' else ''})}}"
             if params != None and len(params) > 0:
                 cursor.execute(sql, params)
             else:
                 cursor.execute(sql)
-            
-            if cursor.description:
-                columns  = [column[0] for column in cursor.description]
-                results = cursor.fetchall()
-                if returnAsTuple_KeyValue and columns:
-                    dict_list = []
-                    for row in results:
-                        # Create a dictionary for each row using column names as keys
-                        row_dict = {columns[i]: row[i] for i in range(len(columns))}
-                        dict_list.append(row_dict)
-                    
-                    return columns,dict_list
+
+            # If the stored procedure modifies data, commit the transaction
+            conn.commit()
+
+            if returnAsTuple_KeyValue:
+                if cursor.description:
+                    columns  = [column[0] for column in cursor.description]
+                    results = cursor.fetchall()
+                    if returnAsTuple_KeyValue and columns:
+                        dict_list = []
+                        for row in results:
+                            # Create a dictionary for each row using column names as keys
+                            row_dict = {columns[i]: row[i] for i in range(len(columns))}
+                            dict_list.append(row_dict)
+                        
+                        return columns,dict_list
+                else:
+                    return None, None
             else:
-                return None, None
+                result = cursor.fetchall()
+                return result
+                
     except pyodbc.Error as e:
         logging.error(f"Error occured while executing SP, error: {e}")
         return None
-    
+    except pyodbc.ProgrammingError:
+        # In case there's no result set, return None
+        return None
 # Handle database operations (insert if not exists)
 def insert_entries(table, insert_data):
     try:
