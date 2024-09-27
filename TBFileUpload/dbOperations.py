@@ -25,7 +25,7 @@ def connect_db():
         logging.error(f"Error forming DB connection string: {e}")
         return None
 
-def execute_stored_procedure(stored_procedure, params, returnAsTuple_KeyValue = True):
+def execute_stored_procedure(stored_procedure, params, outputParams = False, returnAsTuple_KeyValue = True):
     try:
         with pyodbc.connect(connect_db()) as conn:
             # Create a cursor
@@ -33,36 +33,31 @@ def execute_stored_procedure(stored_procedure, params, returnAsTuple_KeyValue = 
 
             # Create the SQL statement to execute the stored procedure
             # For example, if the procedure has 3 parameters, this will be: EXEC stored_procedure ?, ?, ?
-            placeholders = ', '.join('?' * len(params)) if params  else ''
-
-            #sql = f"Exec {stored_procedure} ({placeholders if placeholders and placeholders.strip() != '' else ''})"
-            sql = f"{{CALL {stored_procedure}({placeholders if placeholders and placeholders.strip() != '' else ''})}}"
-            if params != None and len(params) > 0:
-                cursor.execute(sql, params)
+            if outputParams:
+                sql = f"""\
+                    SET NOCOUNT ON;
+                    DECLARE @out INT;
+                    EXEC {stored_procedure} {params if not params is None else ''};
+                    SELECT @out AS the_output;
+                    """
             else:
-                cursor.execute(sql)
+                #sql = f"Exec {stored_procedure} ({placeholders if placeholders and placeholders.strip() != '' else ''})"
+                sql = f" Exec {stored_procedure} {params if not params is None else ''}"
+            
+            cursor.execute(sql)
 
-            # If the stored procedure modifies data, commit the transaction
-            conn.commit()
-
-            if returnAsTuple_KeyValue:
-                if cursor.description:
-                    columns  = [column[0] for column in cursor.description]
-                    results = cursor.fetchall()
-                    if returnAsTuple_KeyValue and columns:
-                        dict_list = []
-                        for row in results:
-                            # Create a dictionary for each row using column names as keys
-                            row_dict = {columns[i]: row[i] for i in range(len(columns))}
-                            dict_list.append(row_dict)
-                        
-                        return columns,dict_list
-                else:
-                    return None, None
-            else:
-                result = cursor.fetchall()
+            if outputParams:
+                result = cursor.fetchval()
+                while True:
+                    if cursor.nextset():
+                        rows = cursor.fetchall()
+                    else:
+                        break
+            
                 return result
-                
+            else:
+                return None
+
     except pyodbc.Error as e:
         logging.error(f"Error occured while executing SP, error: {e}")
         return None
@@ -103,6 +98,18 @@ def getData(table, lookup_field, lookup_value,returnAsTuple_KeyValue=True):
                 return columns,dict_list
             else:
                 return columns, results
+    except pyodbc.Error as e:
+        logging.error(f"Error while checking or inserting for {table}: {e}")
+
+def getData_scalar(table, lookup_field, lookup_value):
+    try:
+        search_query = f"SELECT * FROM {table} WHERE {lookup_field} = ?"
+        with pyodbc.connect(connect_db()) as conn:
+            cursor = conn.cursor()
+            cursor.execute(search_query, lookup_value)
+            result = cursor.fetchone()
+
+            return result
     except pyodbc.Error as e:
         logging.error(f"Error while checking or inserting for {table}: {e}")
 

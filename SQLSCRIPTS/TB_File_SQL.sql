@@ -3,6 +3,8 @@ drop table TB_TrialBalance;
 drop table TB_Particulars;
 drop table TB_MISHead;
 drop table TB_error_log;
+drop table TB_FILE_MONTH_LINK;
+drop table TB_error_log_archieve;
 **/
 go
 
@@ -33,15 +35,14 @@ CREATE TABLE TB_TrialBalance(
 	branch_id VARCHAR(20),
     head_id int,
 	particulars_id int,
-	tb_date DATETIMEOFFSET,
-    tb_amount DECIMAL(18, 2) DEFAULT 0.0,
+	tb_amount DECIMAL(18, 2) DEFAULT 0.0,
+	tb_date datetime default current_timestamp,
 	FOREIGN KEY (head_id) REFERENCES TB_MISHead(head_id),
 	FOREIGN KEY (particulars_id) REFERENCES TB_Particulars(Id)
 )
 go
 
 CREATE TABLE TB_error_log (
-    id INTEGER PRIMARY KEY  IDENTITY(1,1),
 	error_process varchar(25),
 	fileId int, 
     errorMessage varchar(max),
@@ -52,6 +53,17 @@ CREATE TABLE TB_error_log (
 );
 go
 
+CREATE TABLE TB_error_log_archieve (
+    error_process varchar(25),
+	fileId int, 
+    errorMessage varchar(max),
+    rowNumber INTEGER,
+	colNumber INTEGER,
+	colName VARCHAR(25),
+    error_time datetime DEFAULT current_timestamp,
+	archieve_time datetime default current_timestamp
+);
+go
 
 
 
@@ -59,20 +71,17 @@ SELECT * FROM TB_FILE_MONTH_LINK;
 SELECT * FROM TB_MISHead;
 SELECT * FROM TB_Particulars;
 SELECT * FROM TB_TrialBalance;
-SELECT * FROM TB_error_log
-
-
-
+SELECT * FROM TB_error_log;
+go
 
 /***
 truncate table TB_error_log
 truncate table TB_TrialBalance;
-truncate table TB_Particulars;
-truncate table TB_MISHead;
 TRUNCATE TABLE TB_FILE_MONTH_LINK
 **/
 
-CREATE PROC dbsp_InsertTBFileMonthYearLink(@TBFileName	NVARCHAR(max),	@TBMonth INT, @TBYear INT)
+CREATE OR ALTER PROC dbsp_InsertTBFileMonthYearLink
+(@TBFileName	NVARCHAR(max),	@TBMonth INT, @TBYear INT, @FileId int output)
 AS
 	BEGIN
 		  -- Declare variables to capture error details
@@ -81,31 +90,41 @@ AS
 		DECLARE @ErrorState INT;
 
 		BEGIN TRY
-			DECLARE @LastID INT
-
 			INSERT INTO TB_FILE_MONTH_LINK (TBFileName, TBMONTH, TBYEAR)
 			SELECT @TBFileName, @TBMonth, @TBYear
 
-			SET @LastID = SCOPE_IDENTITY();
+			SET @FileId = SCOPE_IDENTITY();
 
 			-- Optionally check if @LastID is NULL (should not happen after a successful insert)
-			IF @LastID IS NULL
+			IF @FileId IS NULL
 			BEGIN
 				RAISERROR('No identity value found after insert.', 16, 1);
 				RETURN;  -- Exit the procedure
 			END
 
-			SELECT @LastID AS FILEID;
+			SELECT @FileId AS FILEID;
 		END TRY
-			BEGIN CATCH
-				-- Capture error details
-				SET @ErrorMessage = ERROR_MESSAGE();
-				SET @ErrorSeverity = ERROR_SEVERITY();
-				SET @ErrorState = ERROR_STATE();
+		BEGIN CATCH
+			-- Capture error details
+			SET @ErrorMessage = ERROR_MESSAGE();
+			SET @ErrorSeverity = ERROR_SEVERITY();
+			SET @ErrorState = ERROR_STATE();
 
-				-- Raise the error again with custom message
-				RAISERROR('An error occurred: %s', @ErrorSeverity, @ErrorState, @ErrorMessage);
-			END CATCH
+			-- Raise the error again with custom message
+			RAISERROR('An error occurred: %s', @ErrorSeverity, @ErrorState, @ErrorMessage);
+		END CATCH
+END
+GO
+
+CREATE OR ALTER PROC dbsp_TBArchieveErrors
+AS
+	BEGIN
+		INSERT INTO TB_error_log_archieve (error_process, fileId, errorMessage, rowNumber, colNumber, colName, error_time)
+		SELECT error_process, fileId, errorMessage, rowNumber, colNumber, colName, error_time FROM TB_error_log;
+
+		TRUNCATE TABLE TB_error_log;
+
 	END
 GO
+
 

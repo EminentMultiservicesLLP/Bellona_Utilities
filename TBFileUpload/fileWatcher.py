@@ -29,25 +29,43 @@ class WatcherHandler(FileSystemEventHandler):
             return None
         elif event.src_path.endswith(".xlsx"):
             logging.info(f"New file detected: {event.src_path}")
+            dbOperations.execute_stored_procedure('dbsp_TBArchieveErrors', None)
             
             def read_excel_and_extract_data(file_path):
-                df = pd.read_excel(file_path, engine='openpyxl', usecols=[0, 1, 2,3,4], nrows=HEADER_ROW)  # Limit to 3 columns and 7 rows
-                for cell in df.stack():  # Iterate over all cells
-                    if isinstance(cell, str) and "Period =" in cell:
-                        match = re.search(r"Period = (\w+ \d{4})", cell)
-                        if match:
-                            month, year = match.group(1).split()
-                            month_numeric = generic.get_month_number(month)
-                            if month_numeric:
-                                params=[file_path.split('/')[-1], month_numeric, int(year)]
-                                OUTPUT = dbOperations.execute_stored_procedure('dbsp_InsertTBFileMonthYearLink', params, False)
-                                logging.debug(f"Inserted: {file_path}, Numeric Date: {(int(year), month_numeric)}")
+                fileId = 0
+                with pd.ExcelFile(file_path, engine='openpyxl') as xls:
+                    df = pd.read_excel(xls, usecols=[0, 1, 2, 3, 4], nrows=HEADER_ROW)
+                    #df = pd.read_excel(file_path, engine='openpyxl', usecols=[0, 1, 2,3,4], nrows=HEADER_ROW)  # Limit to 3 columns and 7 rows
+                    #for cell in df.stack():  # Iterate over all cells
+                    for (row_idx, col), cell in df.stack().items():
+                        col_idx = df.columns.get_loc(col)
+                        if isinstance(cell, str) and "Period =" in cell:
+                            match = re.search(r"Period = (\w+ \d{4})", cell)
+                            if match:
+                                month, year = match.group(1).split()
 
-                            break;
+                                if not isinstance(year, int):
+                                    logging.error(f"Error, period field have wrong/missing year: {year} informathion")
+                                    generic.log_error_to_db(f"Error, period field have wrong/missing year informathion, excel contains value:{cell}", row_idx, col_idx, 0)
 
-            read_excel_and_extract_data(event.src_path)
+                                month_numeric = generic.get_month_number(month)
+                                if month_numeric:
+                                    params= f'''@TBFileName ='{file_path.split('/')[-1]}', @TBMonth ={month_numeric}, @TBYear ={int(year)}, @FileId = @out output'''
+                                    fileId = dbOperations.execute_stored_procedure('dbsp_InsertTBFileMonthYearLink', params, True, False)
+                                    logging.debug(f"Inserted: {file_path}, Numeric Date: {(int(year), month_numeric)}")
+                                else:
+                                    logging.error(f"Error, period field have wrong/missing month: {month} informathion")
+                                    generic.log_error_to_db(f"Error, period field missing Month information, excel contains value:{cell}", row_idx, col_idx, 0)
+                                break;
+                            else:
+                                logging.error(f"Unable to find Perid data in excel")
+                                generic.log_error_to_db(f"Error, period details not available in uploaded file, looks like wrong file or someone removed that data", 4, 1, 0)
 
-            fileprocess.process_file(event.src_path)
+                    del df
+                    return fileId
+            
+            fileId = read_excel_and_extract_data(event.src_path)
+            fileprocess.process_file(event.src_path, fileId)
 
 
 
