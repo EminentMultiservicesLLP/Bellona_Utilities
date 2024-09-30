@@ -1,10 +1,7 @@
 import logging
 import logging.config
 import traceback
-import os
-from dotenv import load_dotenv
-
-load_dotenv() 
+import config
 
 class CustomLogger(logging.Logger):
 
@@ -25,7 +22,7 @@ class CustomLogger(logging.Logger):
         super().error(msg, *args, **kwargs)
 
 def setup_logging():
-    log_level = os.getenv("logLevel", "DEBUG").upper()
+    log_level = config.get_env_variable("logLevel", "INFO").upper()
     logging_config = {
         'version': 1,
         'disable_existing_loggers': False,

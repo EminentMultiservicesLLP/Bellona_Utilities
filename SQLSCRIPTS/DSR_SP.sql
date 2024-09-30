@@ -1,6 +1,14 @@
 
 USE [BELLONA_LIVE]
 GO
+
+IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='Payment_Invoice_INDX' AND object_id = OBJECT_ID('[dbo].[Rista_SalePayments]'))
+BEGIN
+	CREATE NONCLUSTERED INDEX [Payment_Invoice_INDX]
+	ON [dbo].[Rista_SalePayments] ([InvoiceID])
+END
+GO
+
 IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='INDX_InvoiceType_1' AND object_id = OBJECT_ID('[dbo].[Rista_SaleInvoices]'))
 BEGIN
 	CREATE NONCLUSTERED INDEX INDX_InvoiceType_1

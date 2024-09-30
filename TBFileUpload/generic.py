@@ -1,14 +1,9 @@
 import logging
-from dotenv import load_dotenv
 from logging_config import setup_logging
 from datetime import datetime
 import dbOperations
 
-# Load environment variables from .env file
-load_dotenv()
-
 logging = setup_logging()
-
 
 def get_month_number(month_str):
     # Convert to lowercase to handle case-insensitive matches
@@ -24,13 +19,23 @@ def get_month_number(month_str):
     return month_mapping.get(month_short, 0)  # Return 0 if no match is found
 
 
-def log_error_to_db(error_message, row_number, col_Number=None, fileId=0):
+def log_error_to_db(error_message, row_number, col_Number=None, col_Name='', fileId=0):
     """Log error message to the database."""
     try:
         error_details={'error_process':'TB Data Upload','fileId':fileId,
-                       'errorMessage':error_message, 'rowNumber':row_number, 'colNumber':col_Number, 'error_time':datetime.now()}
+                       'errorMessage':error_message, 'rowNumber':row_number, 'colNumber':col_Number, 'colName':col_Name, 'error_time':datetime.now()}
         
-        dbOperations.insert_entries('TB_error_log', error_details)
+        dbOperations.insert_entry_single('TB_error_log', error_details)
+    except Exception as e:
+        logging.error(f"Failed to log error to database: {str(e)}")
+
+def log_error_to_db_many(error_list):
+    """Log error message to the database."""
+    try:
+        columns=['error_process', 'errorMessage', 'rowNumber', 'colNumber', 'colName','fileId','error_time']
+        #sql_ = "INSERT INTO TB_error_log (error_process, errorMessage,rowNumber, colNumber, colName, fileId, error_time) VALUES (?,?,?,?,?,?)"
+
+        dbOperations.insert_entries_many('TB_error_log', columns, error_list)
     except Exception as e:
         logging.error(f"Failed to log error to database: {str(e)}")
 

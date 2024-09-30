@@ -72,10 +72,12 @@ SELECT * FROM TB_MISHead;
 SELECT * FROM TB_Particulars;
 SELECT * FROM TB_TrialBalance;
 SELECT * FROM TB_error_log;
+select * from TB_error_log_archieve
 go
 
 /***
 truncate table TB_error_log
+truncate table TB_error_log_archieve
 truncate table TB_TrialBalance;
 TRUNCATE TABLE TB_FILE_MONTH_LINK
 **/
