@@ -25,6 +25,19 @@ def connect_db():
         logging.error(f"Error forming DB connection string: {e}")
         return None
 
+def connect_db_sqlalchemy():
+    try:
+        password = config.get_env_variable("DB_PASSWORD") .replace("@", "%40")
+        if config.get_env_variable("DB_Local").lower() != 'yes':
+            connection_string = f'mssql+pyodbc://sa:{password}@{config.get_env_variable("DB_SERVER")}/{config.get_env_variable("DB_DATABASE")}?driver=ODBC+Driver+17+for+SQL+Server'
+        else:
+            connection_string = f'mssql+pyodbc://{config.get_env_variable("DB_SERVER")}/{config.get_env_variable("DB_DATABASE")}?driver=ODBC+Driver+17+for+SQL+Server;Trusted_Connection=yes'
+        return connection_string
+    except pyodbc.Error as e:
+        logging.error(f"Error forming DB connection string: {e}")
+        return None
+
+
 def execute_stored_procedure(stored_procedure, params, outputParams = False, returnAsTuple_KeyValue = True):
     try:
         with pyodbc.connect(connect_db()) as conn:

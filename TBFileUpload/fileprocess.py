@@ -6,6 +6,7 @@ import os, re
 import pyodbc
 from logging_config import setup_logging
 import helper, dbOperations, generic, config
+from sqlalchemy import create_engine
 
 logging = setup_logging()
 
@@ -14,6 +15,7 @@ DATA_START_ROW = int(config.get_env_variable('DATA_START_ROW', 1)) - 1  # Conver
 ALLOWED_EXTENSIONS = ["." + ext if not ext.startswith(".") else ext for ext in config.get_env_variable('file_extentions_allowed',"").split(",")]
 FILE_ARCHIVALPATH = config.get_env_variable('file_archivalPath', "")
 expected_columns = {'Code', 'Particulars', 'Nature', 'MIS Head'}
+end_row_text_tofind = config.get_env_variable("TEXT_AT_END_ROW", "Total")
 
 start_branchcolumn_idex =(int(config.get_env_variable_inDigit("BRANCH_COLUMN_START"))) if helper.try_parse(config.get_env_variable("BRANCH_COLUMN_START"), int) else (helper.column_letter_to_index(config.get_env_variable("BRANCH_COLUMN_START", "E"))) 
 end_branchcolumn_index = (int(config.get_env_variable_inDigit("BARNCH_COLUMN_END"))) if helper.try_parse(config.get_env_variable("BARNCH_COLUMN_END"), int) else (helper.column_letter_to_index(config.get_env_variable("BARNCH_COLUMN_END", "AB")))
@@ -22,6 +24,14 @@ code_col_index = (int(config.get_env_variable_inDigit("col_code", None)) - 1)
 particulars_col_index = (int(config.get_env_variable_inDigit("col_particulars", 2)) - 1)
 nature_col_index = (int(config.get_env_variable_inDigit("col_nature", 3)) - 1)
 misheads_col_index = (int(config.get_env_variable_inDigit("col_mis_heads", 4)) - 1)
+MISHead_Collection =[]
+Particulars_Collection =[]
+
+def load_MIShead_Particulars():
+    global MISHead_Collection, Particulars_Collection
+    _, MISHead_Collection = dbOperations.getData_withoutFilter("TB_MISHead",True)
+    _, Particulars_Collection = dbOperations.getData_withoutFilter("TB_Particulars",True)
+
 
 #validate mandatory fields available/missing in excel
 def Validate_MandatoryFields(columns,fileId):
@@ -90,10 +100,7 @@ def ExcelDataChecks(df,fileId):
     validation_Succeed = False
     error_list=[]
     logging.debug("Validation of Data Started")
-
-    _, MISHead_Collection = dbOperations.getData_withoutFilter("TB_MISHead",True)
-    _, Particulars_Collection = dbOperations.getData_withoutFilter("TB_Particulars",True)
-
+    
     '''  follow below steps  -- Check if any of value is non numeric for expected Branch numeric values 
     1.  # get subset field which falls for branch numeric details
     2.  # Clean the data: strip any leading/trailing spaces
@@ -101,7 +108,13 @@ def ExcelDataChecks(df,fileId):
     4.  # Check for any NaN values, which indicate non-numeric entries
     5.  # If you want to see the rows and columns that contain non-numeric values
     '''
-    subset_df = df.iloc[:, start_branchcolumn_idex-1:end_branchcolumn_index]
+    # total_row_index = df.index[df.iloc[:, particulars_col_index].str.lower() == end_row_text_tofind.lower()].tolist()
+    # if not total_row_index :
+    #     total_row_index = df.index[df.iloc[:, code_col_index].str.lower() == end_row_text_tofind.lower()].tolist()
+
+    total_row_index = df.index[(df.iloc[:, particulars_col_index].str.lower() == end_row_text_tofind.lower()) | (df.iloc[:, code_col_index].str.lower() == end_row_text_tofind.lower())].tolist()
+
+    subset_df = df.iloc[:total_row_index[0], start_branchcolumn_idex-1:end_branchcolumn_index] if total_row_index else df.iloc[:, start_branchcolumn_idex-1:end_branchcolumn_index]
     subset_df = subset_df.applymap(lambda x: str(x).strip() if isinstance(x, str) else x)
     numeric_df = subset_df.apply(pd.to_numeric, errors='coerce')
     non_numeric_mask = numeric_df.isna()
@@ -111,7 +124,8 @@ def ExcelDataChecks(df,fileId):
         col_letter = helper.index_to_column_letter(col_idx)
         error_list.append((f"Blank/Invalid (expected Numeric value) in column '{col_letter}' at row {row_idx+DATA_START_ROW +1}.", DATA_START_ROW+ row_idx+1, col_idx, col_letter ,fileId))
 
-    subset_df = df.iloc[:, 0:start_branchcolumn_idex-2]
+    #check for empty field in first 4 columns which are (code, particulars, nature & MIS_Head)
+    subset_df = df.iloc[:total_row_index[0], 0:start_branchcolumn_idex-2] if total_row_index else df.iloc[:, 0:start_branchcolumn_idex-2]
     blank_or_empty_mask = subset_df.applymap(lambda val: pd.isna(val) or str(val).strip() == '')
     blank_or_empty_cells = blank_or_empty_mask.stack()[blank_or_empty_mask.stack()].index.tolist()
     for row_idx, col_name in blank_or_empty_cells:
@@ -157,7 +171,17 @@ def ExcelDataChecks(df,fileId):
     if error_list:
         validation_Succeed = False
         updated_error_list = [("TB_Upload", t[0], t[1], t[2], t[3], t[4], datetime.now()) for t in error_list]
-        generic.log_error_to_db_many(updated_error_list)
+
+        # Create a new DataFrame from final_data
+        error_df = pd.DataFrame(updated_error_list, columns=['error_process', 'errorMessage', 'rowNumber', 'colNumber', 'colName','fileId','error_time'])
+        engine = create_engine(dbOperations.connect_db_sqlalchemy())
+        try:
+            error_df.to_sql(config.get_env_variable("error_table", "TB_error_log"), con=engine, if_exists='append', index=False)
+            logging.debug("Error Data inserted successfully!")
+        except Exception as e:
+            logging.error(f"Error inserting Error entries: {e}")
+            generic.log_error_to_db_many(updated_error_list)
+
     else: validation_Succeed = True    
          
     logging.debug("Validation of Data Completed")
@@ -165,33 +189,46 @@ def ExcelDataChecks(df,fileId):
 
 # Process the Excel file and insert data into the database
 def process_file(file_path, fileId):
-    cursor = None
+    global MISHead_Collection, Particulars_Collection
     start_time = time.time()
     try:
+        load_MIShead_Particulars()
+
         # Read Excel file starting from the configured header row and actual data row
         with pd.ExcelFile(file_path, engine='openpyxl') as xls:
-            df = pd.read_excel(xls, header=HEADER_ROW, skiprows=range(HEADER_ROW+1, DATA_START_ROW), usecols=range(end_branchcolumn_index))
-            #df = pd.read_excel(file_path, header=HEADER_ROW, skiprows=range(HEADER_ROW+1, DATA_START_ROW), usecols=range(end_branchcolumn_index))
+            try:
+                df = pd.read_excel(xls, header=HEADER_ROW, skiprows=range(HEADER_ROW+1, DATA_START_ROW), usecols=range(end_branchcolumn_index))
+                #df = pd.read_excel(file_path, header=HEADER_ROW, skiprows=range(HEADER_ROW+1, DATA_START_ROW), usecols=range(end_branchcolumn_index))
 
-            if Validate_MandatoryFields(df.columns, fileId):
-                end_time = time.time()
-                elapsed_time = end_time - start_time
-                logging.warning(f"Validation took -{elapsed_time:.4f} seconds")
+                total_row_index = df.index[(df.iloc[:, particulars_col_index].str.lower() == end_row_text_tofind.lower()) | (df.iloc[:, code_col_index].str.lower() == end_row_text_tofind.lower())].tolist()
 
-                start_time = time.time();
-                if(ExcelDataChecks(df, fileId)) and fileId > 0:
+                code_col = df.columns[code_col_index]
+                particulars_col = df.columns[particulars_col_index]
+                if total_row_index:
+                    #limit df till "total" row index
+                    total_rows = total_row_index[0]-1
+                    df.loc[:total_rows, code_col] = df.loc[:total_rows].apply(lambda row: ''.join(word[0] for word in row[particulars_col].split()) if pd.isna(row[code_col]) or str(row[code_col]).strip() == '' else row[code_col], axis=1)
+                    df = df[:total_rows]
+                else:
+                    df[code_col] = df.apply(lambda row: ''.join(word[0] for word in row[particulars_col].split()) if pd.isna(row[code_col]) or str(row[code_col]).strip() == '' else row[code_col], axis=1)
+
+                if Validate_MandatoryFields(df.columns, fileId):
                     end_time = time.time()
                     elapsed_time = end_time - start_time
-                    logging.warning(f"ExcelDataChecks took -{elapsed_time:.4f} seconds")
+                    logging.warning(f"Validation took -{elapsed_time:.4f} seconds")
 
                     start_time = time.time();
-                    with pyodbc.connect(dbOperations.connect_db()) as conn:
-                        # Create a cursor
-                        cursor = conn.cursor()
+                    if(ExcelDataChecks(df, fileId)) and fileId > 0:
+                        end_time = time.time()
+                        elapsed_time = end_time - start_time
+                        logging.warning(f"ExcelDataChecks took -{elapsed_time:.4f} seconds")
 
+                        start_time = time.time();
+                        df_columns =['fileId', 'branch_id', 'head_id', 'particulars_id', 'tb_amount'] 
+                        final_data=[]
                         for index, row in df.iterrows():
                             try:
-                                logging.debug("started new row reading after exceldatachecks")
+                                logging.debug("stared new row reading after exceldatachecks")
 
                                 code = row[code_col_index]  # Code data from column A
                                 particulars = row[particulars_col_index]  # Particulars data from column B
@@ -203,64 +240,69 @@ def process_file(file_path, fileId):
                                 #break the loop as soon as we hit the total row
                                 if (particulars.strip().lower() == "total"): 
                                     logging.debug(f"Reached at Total row at index {index+DATA_START_ROW-1}, ending file processing.")
-                                    conn.commit()
                                     break
 
                                 # as per finance team they need to use first letter of each word of partuvlar columns, if code is blank
                                 if code is None or not isinstance(code, str):
                                     code = ''.join([word[0] for word in particulars.split()])
 
-                                # Insert or get MIS_head ID
-                                #mis_head_id = dbOperations.insert_or_get_id(cursor, "TB_MISHead", "head_name", mis_head, {'head_name': mis_head, 'nature': nature}, index)
-                                mis_head_id = dbOperations.getData_scalar(cursor, "TB_MISHead", "head_id", "head_name", mis_head)
-                                logging.debug(f"Received MIS Head ID {mis_head}")
+                                mis_head_id = next((d["head_id"] for d in MISHead_Collection if d.get("head_name") == mis_head), None)
+                                if mis_head_id: logging.debug(f"Received MIS Head ID {mis_head_id}")
+                                
+                                particulars_id =  next((d["Id"] for d in Particulars_Collection if d.get("code") == code), None)
+                                if particulars_id: logging.debug(f"Received Particulars ID {mis_head_id}")
 
-                                # Insert or get Particulars ID
-                                #particulars_id =  dbOperations.insert_or_get_id(cursor, "TB_Particulars", "code", code, {'code': code, 'particulars': particulars}, index)
-                                particulars_id =  dbOperations.getData_scalar(cursor, "TB_Particulars", "id", "code", code)
-                                logging.debug(f"Received Particulars ID {particulars_id}")
+                                # Prepare data for each branch column
+                                for branch_col in df.columns[start_branchcolumn_idex - 1:]:
+                                    branch_id = branch_col  # Assuming branch name or id is in the column header
+                                    tb_amount = row[branch_col]
+                                    final_data.append((fileId, branch_id, mis_head_id, particulars_id, tb_amount))
 
-                                if mis_head_id and particulars_id:
-                                    # For each branch column start position
-                                    single_row_multiplebranch_data = []
-                                    insert_sql = """
-                                                INSERT INTO dbo.TB_TrialBalance (fileId, branch_id, head_id, particulars_id, tb_amount)
-                                                VALUES (?, ?, ?, ?, ?)
-                                                """
-                                    for branch_col in df.columns[start_branchcolumn_idex-1:]:
-                                        #col_idx = df.columns.get_loc(branch_col) 
-                                        branch_id = branch_col  # Assuming branch name or id is in the column header
-                                        tb_amount = row[branch_col]
-                                        #tb_date = pd.Timestamp.today().date()  # Or adjust as per file
+                                # if mis_head_id and particulars_id:
+                                #     final_data.append(
+                                #         (fileId, branch_col, mis_head_id, particulars_id, row[branch_col])
+                                #         for branch_col in df.columns[start_branchcolumn_idex - 1:]
+                                #     )
+                                
+                                
+                                # fileId= 5
+                                # if mis_head_id and particulars_id:
+                                #     single_row_multiplebranch_data = []
+                                #     for branch_col in df.columns[start_branchcolumn_idex-1:]:
+                                #         branch_id = branch_col  # Assuming branch name or id is in the column header
+                                #         tb_amount = row[branch_col]
                                         
-                                        single_row_multiplebranch_data.append(( fileId, branch_id, mis_head_id, particulars_id, tb_amount))
-                                        # # Insert into TB_TrialBalance
-                                        # try:
-                                        #     cursor.execute("""
-                                        #         INSERT INTO dbo.TB_TrialBalance (fileId, branch_id, head_id, particulars_id, tb_amount)
-                                        #         VALUES (?, ?, ?, ?, ?)
-                                        #     """, ( fileId, branch_id, mis_head_id, particulars_id, tb_amount))
-                                        #     logging.debug(f"Data inserted for Branch {branch_id}, MIS Head {mis_head_id}, TB Particulars {particulars_id}.")
-                                        # except pyodbc.Error as e:
-                                        #     logging.error(f"Error inserting trial balance value of row ({index+DATA_START_ROW-1}) and column ({col_idx}) into system  (fileId:{fileId}, branch_id:{branch_id}, mis_head_id:{mis_head_id}, particulars_id:{particulars_id}, tb_amount:{tb_amount}): {e}")
-                                        #     generic.log_error_to_db(f"Error inserting trial balance value of row ({index+DATA_START_ROW-1}) and column ({col_idx}) into system: {e}", DATA_START_ROW+ (index-1), col_idx, helper.index_to_column_letter(col_idx),fileId)
-
-                                    logging.debug(f"Commiting All branch details for row Data for MIS Head {mis_head_id}, TB Particulars {particulars_id}.")
-            
-                                    cursor.executemany(insert_sql, single_row_multiplebranch_data)
-                                    conn.commit()
-                                                    
+                                #         single_row_multiplebranch_data.append(( fileId, branch_id, mis_head_id, particulars_id, tb_amount))
+                                    
                             except ValueError as v:
                                 logging.error(f"Value error: {v}")
                             except Exception as e:
                                 logging.error(f"Error processing file {file_path}: {e}")        
-                    elapsed_time = (time.time()) - start_time
-                    logging.warning(f"insert took -{elapsed_time:.4f} seconds")
+                        
+                        
+                        # Create a new DataFrame from final_data
+                        final_df = pd.DataFrame(final_data, columns=df_columns)
 
-        del df
-        logging.debug("Processing completed, dataframe delete")
-        xls.close()
-        logging.debug("Processing completed, excel instance closed")
+                        # Create a SQLAlchemy engine
+                        engine = create_engine(dbOperations.connect_db_sqlalchemy())
+
+                        # Insert the DataFrame into the database
+                        # Replace 'your_table_name' with the actual table name
+                        try:
+                            final_df.to_sql(config.get_env_variable("tb_balance", "TB_TrialBalance"), con=engine, if_exists='append', index=False)
+                            logging.debug("Data inserted successfully!")
+                        except Exception as e:
+                            logging.error(f"Error inserting TB Data: {e}")
+
+                        elapsed_time = (time.time()) - start_time
+                        logging.warning(f"insert took -{elapsed_time:.4f} seconds")
+            
+                if df: del df
+            except Exception as e:
+                logging.error(f"Error ocurred while processing file: {e}", exc_info=True)
+            finally:
+                xls.close()
+                logging.debug("Processing completed, excel instance closed")    
     except Exception as e:
         logging.error(f"Error processing file {file_path}: {e}")
 
@@ -279,45 +321,50 @@ def StartFileProcessing(fileSourcePath):
             def read_excel_and_extract_data(file_path):
                 fileId = 0
                 with pd.ExcelFile(file_path, engine='openpyxl') as xls:
-                    df = pd.read_excel(xls, usecols=[0, 1, 2, 3, 4], nrows=HEADER_ROW)
-                    #df = pd.read_excel(file_path, engine='openpyxl', usecols=[0, 1, 2,3,4], nrows=HEADER_ROW)  # Limit to 3 columns and 7 rows
-                    #for cell in df.stack():  # Iterate over all cells
-                    for (row_idx, col), cell in df.stack().items():
-                        col_idx = df.columns.get_loc(col)
-                        if isinstance(cell, str) and "Period =" in cell:
-                            #match = re.search(r"Period = (\w+ \d{4})", cell)
-                            match = re.search(r"Period\s*=\s*([A-Za-z]+)\s+(\d{4})", cell)
-                            if match:
-                                month = match.group(1)
-                                year = match.group(2)
+                    try:
+                        df = pd.read_excel(xls, usecols=[0, 1, 2, 3, 4], nrows=HEADER_ROW)
+                        #df = pd.read_excel(file_path, engine='openpyxl', usecols=[0, 1, 2,3,4], nrows=HEADER_ROW)  # Limit to 3 columns and 7 rows
+                        #for cell in df.stack():  # Iterate over all cells
+                        for (row_idx, col), cell in df.stack().items():
+                            col_idx = df.columns.get_loc(col)
+                            if isinstance(cell, str) and "Period =" in cell:
+                                #match = re.search(r"Period = (\w+ \d{4})", cell)
+                                match = re.search(r"Period\s*=\s*([A-Za-z]+)\s+(\d{4})", cell)
+                                if match:
+                                    month = match.group(1)
+                                    year = match.group(2)
 
-                                if not helper.try_parse(year, int):
-                                    logging.error(f"Error period field have wrong/missing year: {year} informathion")
-                                    generic.log_error_to_db(f"Error, period field have wrong/missing year informathion, excel contains value:{cell}", row_idx, col_idx, 0)
+                                    if not helper.try_parse(year, int):
+                                        logging.error(f"Error period field have wrong/missing year: {year} informathion")
+                                        generic.log_error_to_db(f"Error, period field have wrong/missing year informathion, excel contains value:{cell}", row_idx, col_idx, 0)
 
-                                month_numeric = generic.get_month_number(month)
-                                if month_numeric:
-                                    params= f'''@TBFileName ='{file_path.split('/')[-1]}', @TBMonth ={month_numeric}, @TBYear ={int(year)}, @FileId = @out output'''
-                                    fileId = dbOperations.execute_stored_procedure('dbsp_InsertTBFileMonthYearLink', params, True, False)
-                                    logging.debug(f"Inserted: {file_path}, Numeric Date: {(int(year), month_numeric)}")
+                                    month_numeric = generic.get_month_number(month)
+                                    if month_numeric:
+                                        params= f'''@TBFileName ='{file_path.split('/')[-1]}', @TBMonth ={month_numeric}, @TBYear ={int(year)}, @FileId = @out output'''
+                                        fileId = dbOperations.execute_stored_procedure('dbsp_InsertTBFileMonthYearLink', params, True, False)
+                                        logging.debug(f"Inserted: {file_path}, Numeric Date: {(int(year), month_numeric)}")
+                                    else:
+                                        logging.error(f"Error, period field have wrong/missing month: {month} informathion")
+                                        generic.log_error_to_db(f"Error, period field missing Month information, excel contains value:{cell}", row_idx, col_idx, 0)
+                                    break;
                                 else:
-                                    logging.error(f"Error, period field have wrong/missing month: {month} informathion")
-                                    generic.log_error_to_db(f"Error, period field missing Month information, excel contains value:{cell}", row_idx, col_idx, 0)
-                                break;
-                            else:
-                                logging.error(f"Unable to find Perid data in excel")
-                                generic.log_error_to_db(f"Error period details not available in uploaded file, looks like wrong file or someone removed that data", 4, 1, 0)
-                    if fileId == 0:
-                        logging.error(f"Unable to find Perid data in uploaded excel file")
-                        generic.log_error_to_db(f"Error - period details not available in uploaded file, looks like wrong file or someone removed that data", 4, 1, 0)
-                    del df
-                    xls.close()
-                    return fileId
+                                    logging.error(f"Unable to find Perid data in excel")
+                                    generic.log_error_to_db(f"Error period details not available in uploaded file, looks like wrong file or someone removed that data", 4, 1, 0)
+                        if fileId == 0:
+                            logging.error(f"Unable to find Perid data in uploaded excel file")
+                            generic.log_error_to_db(f"Error - period details not available in uploaded file, looks like wrong file or someone removed that data", 4, 1, 0)
+                        
+                        if df: del df
+                    except Exception as e:
+                        logging.error(f"Error ocurred while start file processing: {e}", exc_info=True)
+                    finally:
+                        xls.close()
+                        return fileId
 
             fileId = read_excel_and_extract_data(fileSourcePath)
             process_file(fileSourcePath, fileId)
             error_count = dbOperations.getData_scalar(None, config.get_env_variable("error_table"), "count(1)", "","")
-            if error_count > 0:
+            if error_count > 0 or fileId ==0:
                 return False
             return True
         else:
@@ -329,6 +376,9 @@ def StartFileProcessing(fileSourcePath):
         return False
     finally:
          if FILE_ARCHIVALPATH:
+            logging.debug(f"File archieval started")
             file_name = file_name = os.path.basename(fileSourcePath)
-            archive_completePath = os.path.join(FILE_ARCHIVALPATH, file_name)
+            archive_completePath = os.path.join(FILE_ARCHIVALPATH, "Success" if error_count == 0 else "Failed", file_name)
+            logging.debug(f"File to be archieved at {archive_completePath}")
             os.rename(fileSourcePath, archive_completePath)
+            logging.debug(f"File archieved")
