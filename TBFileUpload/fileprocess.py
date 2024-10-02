@@ -3,7 +3,6 @@ import logging
 from datetime import datetime
 import time
 import os, re
-import pyodbc
 from logging_config import setup_logging
 import helper, dbOperations, generic, config
 from sqlalchemy import create_engine
@@ -297,7 +296,7 @@ def process_file(file_path, fileId):
                         elapsed_time = (time.time()) - start_time
                         logging.warning(f"insert took -{elapsed_time:.4f} seconds")
             
-                if df: del df
+                if 'df' in locals() and not df.empty: del df
             except Exception as e:
                 logging.error(f"Error ocurred while processing file: {e}", exc_info=True)
             finally:
@@ -354,7 +353,7 @@ def StartFileProcessing(fileSourcePath):
                             logging.error(f"Unable to find Perid data in uploaded excel file")
                             generic.log_error_to_db(f"Error - period details not available in uploaded file, looks like wrong file or someone removed that data", 4, 1, 0)
                         
-                        if df: del df
+                        if 'df' in locals() and not df.empty: del df
                     except Exception as e:
                         logging.error(f"Error ocurred while start file processing: {e}", exc_info=True)
                     finally:
@@ -378,7 +377,11 @@ def StartFileProcessing(fileSourcePath):
          if FILE_ARCHIVALPATH:
             logging.debug(f"File archieval started")
             file_name = file_name = os.path.basename(fileSourcePath)
-            archive_completePath = os.path.join(FILE_ARCHIVALPATH, "Success" if error_count == 0 else "Failed", file_name)
-            logging.debug(f"File to be archieved at {archive_completePath}")
+            file_name = f"{datetime.now().strftime('%d%m%y%H%M%S')}_{file_name}"
+            archive_folder = os.path.join(FILE_ARCHIVALPATH, "Success" if error_count == 0 else "Failed")
+            archive_completePath = os.path.join(archive_folder, file_name)
+            os.makedirs(archive_folder, exist_ok=True)
             os.rename(fileSourcePath, archive_completePath)
             logging.debug(f"File archieved")
+        
+            return True;

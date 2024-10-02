@@ -70,7 +70,7 @@ go
 SELECT * FROM TB_FILE_MONTH_LINK;
 SELECT * FROM TB_MISHead;
 SELECT * FROM TB_Particulars;
-SELECT * FROM TB_TrialBalance;
+select * from TB_TrialBalance
 SELECT * FROM TB_error_log;
 select * from TB_error_log_archieve
 go

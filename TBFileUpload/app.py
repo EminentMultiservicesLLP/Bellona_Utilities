@@ -9,16 +9,24 @@ WATCH_DIRECTORY = config.get_env_variable('WATCH_DIRECTORY', "")
 
 @app.route('/api/home/processTBFile', methods=['POST'])
 def start_FileProcessing():
-    file_path = request.json.get('file_path')  # Accepts the file path from the request body
-    
-    # Check if the file exists
-    if not os.path.exists(file_path):
-        return jsonify({"error": "File not found"}), 404
+    try:
+        # Try to get data from JSON body (POST requests typically)
+        json_data = request.get_json(silent=True)
+        # Try to get data from query string (GET requests)
+        query_params = request.args
 
-    if fileprocess.StartFileProcessing(file_path):
-        return jsonify({"status": "File processed successfully"}), 200
-    return jsonify({"status": "File processing failed, please see the error(s)"}), 422
+        # If no data is passed in JSON, fall back to query params
+        file_path = json_data.get('file_path') if json_data else query_params.get('file_path')
+        
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            return jsonify({"error": "File not found"}), 404
 
+        if fileprocess.StartFileProcessing(file_path):
+            return jsonify({"status": "File processed successfully"}), 200
+        return jsonify({"status": "File processing failed, please see the error(s)"}), 422
+    except Exception as e:
+        return jsonify({"status": "File processing failed, Insternal server error. Ask Administrator to look into issue"}), 423
 @app.route('/api/home/getErrorList', methods=['GET'])
 def GetErrorList():
     return jsonify({"status": "watcher stopped"}), 200
