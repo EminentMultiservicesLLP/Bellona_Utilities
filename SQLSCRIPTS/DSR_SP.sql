@@ -52,14 +52,13 @@ BEGIN
 		EndTime		TIME(3),
 		IsDeactive	Bit default 0
 	)
-	
 	IF NOT EXISTS(SELCT 1 FROM MST_SaleTimeSessions)
 	BEGIN
 		INSERT INTO dbo.MST_SaleTimeSessions (SessionName, StartTime, EndTime)
 		SELECT 'LUNCH', '08:00:00', '15:59:59' UNION
 		SELECT 'HI-TEA', '16:00:00', '19:59:59' UNION
 		SELECT 'DINNER', '20:00:00', '23:00:00' UNION
-		SELECT 'LATE-DINNER', '23:01:00', '07:59:59' 
+		SELECT 'LATE-DINNER', '23:00:01', '07:59:59' 
 	END
 END
 GO
@@ -133,6 +132,7 @@ BEGIN
 	;WITH CTE_ITEM_SALE(FoodSale, BeverageSale, LiquorSale, TobaccoSale, OtherSale)
 	AS (
 		SELECT 	
+			
 			SUM(CASE WHEN AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS FoodSale,
 			SUM(CASE WHEN AccountName = 'Beverage Sale' THEN SIT.NetAmount ELSE 0 END) AS BeverageSale,
 			SUM(CASE WHEN AccountName = 'LIQUOR SALE' THEN SIT.NetAmount ELSE 0 END) AS LiquorSale,

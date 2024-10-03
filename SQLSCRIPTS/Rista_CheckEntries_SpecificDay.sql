@@ -1,5 +1,5 @@
 DECLARE @INVOICEDAY VARCHAR(20);
-SET @INVOICEDAY = '2024-09-25';
+SET @INVOICEDAY = '2024-09-28';
 
 select count(distinct invoiceid) Invoice FROM Rista_SaleInvoices (nolock) WHERE InvoiceDay = @INVOICEDAY;
 
