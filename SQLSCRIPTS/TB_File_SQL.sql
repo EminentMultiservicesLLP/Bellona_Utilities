@@ -8,6 +8,7 @@ drop table TB_error_log_archieve;
 **/
 go
 
+
 CREATE TABLE TB_MISHead (
     head_id INT PRIMARY KEY IDENTITY(1,1),
     head_name VARCHAR(100) UNIQUE NOT NULL,
@@ -26,9 +27,12 @@ CREATE  TABLE TB_FILE_MONTH_LINK (
     TBFileName	NVARCHAR(max),
 	TBMonth		INT,
 	TBYear		INT,
-	CreatedDate	Datetime Default Current_timestamp
+	DEACTIVATE INT DEFAULT 0,
+	CreatedDate	Datetime Default Current_timestamp,
+	UpdatedDate	DATETIME default current_timestamp
 );
 go
+
 CREATE TABLE TB_TrialBalance(
 	tb_id INT PRIMARY KEY IDENTITY(1,1),
 	fileId int, 
@@ -65,22 +69,18 @@ CREATE TABLE TB_error_log_archieve (
 );
 go
 
+CREATE OR ALTER PROC dbsp_RemoveOLDTBEntries_MonthYear(@TBMONTH INT, @TBYEAR INT)
+AS
+BEGIN
+	DELETE TB FROM TB_TrialBalance TB 
+	INNER JOIN TB_FILE_MONTH_LINK TF ON TB.fileId = TF.Id
+	WHERE TF.TBMonth = @TBMONTH AND TF.TBYear = @TBYEAR;
 
+	UPDATE TB_FILE_MONTH_LINK SET DEACTIVATE = 1
+	WHERE TBMonth = @TBMONTH AND TBYear = @TBYEAR AND DEACTIVATE = 0;
 
-SELECT * FROM TB_FILE_MONTH_LINK;
-SELECT * FROM TB_MISHead;
-SELECT * FROM TB_Particulars;
-select * from TB_TrialBalance
-SELECT * FROM TB_error_log;
-select * from TB_error_log_archieve
-go
-
-/***
-truncate table TB_error_log
-truncate table TB_error_log_archieve
-truncate table TB_TrialBalance;
-TRUNCATE TABLE TB_FILE_MONTH_LINK
-**/
+END
+GO
 
 CREATE OR ALTER PROC dbsp_InsertTBFileMonthYearLink
 (@TBFileName	NVARCHAR(max),	@TBMonth INT, @TBYear INT, @FileId int output)
@@ -103,6 +103,9 @@ AS
 				RAISERROR('No identity value found after insert.', 16, 1);
 				RETURN;  -- Exit the procedure
 			END
+
+			--DELETE OLD ENTRIES FOR SAME DATE IF EXISTS
+			EXEC dbsp_RemoveOLDTBEntries_MonthYear @TBMONTH, @TBYEAR;
 
 			SELECT @FileId AS FILEID;
 		END TRY
@@ -129,4 +132,19 @@ AS
 	END
 GO
 
+
+SELECT * FROM TB_FILE_MONTH_LINK;
+SELECT * FROM TB_MISHead;
+SELECT * FROM TB_Particulars;
+select * from TB_TrialBalance
+SELECT * FROM TB_error_log;
+select * from TB_error_log_archieve
+go
+
+/***
+truncate table TB_error_log
+truncate table TB_error_log_archieve
+truncate table TB_TrialBalance;
+TRUNCATE TABLE TB_FILE_MONTH_LINK
+**/
 

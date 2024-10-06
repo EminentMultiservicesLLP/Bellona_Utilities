@@ -8,22 +8,27 @@ SET @Enddt = '2024-09-14'
 SET @branchCode  = 'bnahisha'
 SET @clusterId  = 0
 
-EXEC [dbo].[dbsp_GetDSR_Summary] @Startdt = @Startdt, @Enddt=@Enddt, @branchCode= @branchCode, @clusterId = @clusterId
+EXEC [dbo].[dbsp_GetDSR_Summary] @Startdt = @Startdt, @Enddt=@Enddt, @branchCode= @branchCode
 EXEC [dbo].[dbsp_GetDSR_Summary_1] @Startdt = @Startdt, @Enddt=@Enddt, @branchCode= @branchCode
 EXEC [dbo].[dbsp_GetDSR_Summary_2] @Startdt = @Startdt, @Enddt=@Enddt, @branchCode= @branchCode
+
+select * from MST_Clusters
+select * from [dbo].[MST_Cities]
 */
 CREATE or ALTER   PROCEDURE [dbo].[dbsp_GetDSR_Summary]
 (	@Startdt datetime, @Enddt  datetime, @branchCode varchar(20) = null, @clusterId int = 0, @cityId int = 0 )
 AS
 BEGIN
 	IF @branchCode = '0' SET @branchCode = NULL
-	DECLARE @OUTLETS TABLE(BRANCHCODE VARCHAR(20), BRANCHNAME VARCHAR(255), CLUSTERNAME VARCHAR(255))
+	DECLARE @OUTLETS TABLE(BRANCHCODE VARCHAR(20), BRANCHNAME VARCHAR(255), CLUSTERNAME VARCHAR(255), CityName VARCHAR(100))
 
-	INSERT @OUTLETS (BRANCHCODE, BRANCHNAME, CLUSTERNAME)
-	SELECT distinct OutletCode BRANCHCODE, OutletName BRANCHNAME, MC.ClusterName
+	INSERT @OUTLETS (BRANCHCODE, BRANCHNAME, CLUSTERNAME, CityName)
+	SELECT distinct OutletCode BRANCHCODE, OutletName BRANCHNAME, MC.ClusterName, MCT.CityName
 	FROM MST_OUTLET MO 
 	INNER JOIN MST_Clusters MC ON MO.ClusterID = MC.ClusterID
-	WHERE	MO.ClusterID = (CASE WHEN ISNULL(@clusterId, 0) = 0 THEN MO.ClusterID ELSE @clusterId END)
+	INNER JOIN MST_Cities MCT ON MC.CityID = MCT.CityID
+	WHERE	MC.CityID =  (CASE WHEN ISNULL(@cityId, 0) = 0 THEN MC.CityID ELSE @cityId END)
+			AND MO.ClusterID = (CASE WHEN ISNULL(@clusterId, 0) = 0 THEN MO.ClusterID ELSE @clusterId END)
 			AND OutletCode = (CASE WHEN ISNULL(@branchCode , '0') = '0' THEN OutletCode ELSE @branchCode END)  
 	
 
@@ -214,7 +219,7 @@ BEGIN
 		GROUP BY rsi.branchCode
 	
 	
-	SELECT	DISTINCT cis.branchCode,MO.BRANCHNAME, MO.CLUSTERNAME,
+	SELECT	DISTINCT cis.branchCode,MO.BRANCHNAME, MO.CLUSTERNAME, MO.CityName, 
 			ISNULL(SUM(CIS.FoodSale) ,0) FoodSaleNet, ISNULL(SUM(CIS.BeverageSale) ,0) BeverageSaleNet, ISNULL(SUM(CIS.LiquorSale) ,0) LiquorSaleNet, ISNULL(SUM(CIS.TobaccoSale) ,0) TobaccoSaleNet, 
 			ISNULL(SUM(CIS.OtherSale) ,0) OtherSale1Net,  ISNULL(SUM(CNS.NetDiscountAmount) ,0) DiscountAmount, ISNULL(SUM(CNS.NetChargeAmount) ,0) ServiceChargeAmount, ISNULL(SUM(CNS.DirectCharge) ,0) DirectCharge, 
 			ISNULL(SUM(CNS.NetSale) ,0) SalesNetTotal, ISNULL(SUM(CNS.NetSale + CNS.NetChargeAmount) ,0) SalesTotalWithSC,
@@ -254,6 +259,6 @@ BEGIN
 	LEFT JOIN #SalesData_DINEOUT_TEMP dineout ON CIS.branchCode = dineout.branchCode
 	LEFT JOIN #SalesData_EAZYDINER_TEMP eazydiner ON CIS.branchCode = eazydiner.branchCode
 	LEFT JOIN @OUTLETS MO ON CIS.branchCode = MO.BRANCHCODE
-	GROUP BY cis.branchCode,MO.BRANCHNAME, MO.CLUSTERNAME
+	GROUP BY cis.branchCode,MO.BRANCHNAME, MO.CLUSTERNAME, MO.CityName
 END
 GO

@@ -14,10 +14,10 @@ load_dotenv()
 # Initialize the logger
 logger = setup_logging()
 
+
 # Main function to run the steps
 def main():
     logger.debug("Main Function execution starts")
-
     try:
         if os.getenv('run_for_test') == '1':
             params = {

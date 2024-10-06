@@ -26,6 +26,7 @@ misheads_col_index = (int(config.get_env_variable_inDigit("col_mis_heads", 4)) -
 MISHead_Collection =[]
 Particulars_Collection =[]
 
+#load master details for MIS head and Partivulars + code in session
 def load_MIShead_Particulars():
     global MISHead_Collection, Particulars_Collection
     _, MISHead_Collection = dbOperations.getData_withoutFilter("TB_MISHead",True)
@@ -45,7 +46,7 @@ def Validate_MandatoryFields(columns,fileId):
     
     if missing_cols:
         logging.error(f"Missing columns: {', '.join(missing_cols)}")
-        generic.log_error_to_db(f"Required fields ({', '.join(missing_cols)}) missing in uploaded file.", HEADER_ROW, 0, fileId)
+        generic.log_error_to_db(f"Required fields ({', '.join(missing_cols)}) missing from header in uploaded file.", HEADER_ROW, 0, '')
         return False
     return True
 
@@ -311,6 +312,9 @@ def process_file(file_path, fileId):
     logging.warning(f"Time taken: {elapsed_time:.4f} seconds")
 
 def StartFileProcessing(fileSourcePath):
+    uploadedMonth = 0
+    uploadedYear =0
+    is_success= True
     try:
         
         if fileSourcePath.endswith(tuple(ALLOWED_EXTENSIONS)):
@@ -339,6 +343,11 @@ def StartFileProcessing(fileSourcePath):
 
                                     month_numeric = generic.get_month_number(month)
                                     if month_numeric:
+                                        nonlocal uploadedMonth 
+                                        nonlocal uploadedYear
+                                        uploadedMonth = month_numeric
+                                        uploadedYear = int(year)
+
                                         params= f'''@TBFileName ='{file_path.split('/')[-1]}', @TBMonth ={month_numeric}, @TBYear ={int(year)}, @FileId = @out output'''
                                         fileId = dbOperations.execute_stored_procedure('dbsp_InsertTBFileMonthYearLink', params, True, False)
                                         logging.debug(f"Inserted: {file_path}, Numeric Date: {(int(year), month_numeric)}")
@@ -362,26 +371,94 @@ def StartFileProcessing(fileSourcePath):
 
             fileId = read_excel_and_extract_data(fileSourcePath)
             process_file(fileSourcePath, fileId)
-            error_count = dbOperations.getData_scalar(None, config.get_env_variable("error_table"), "count(1)", "","")
-            if error_count > 0 or fileId ==0:
-                return False
-            return True
+            
         else:
             logging.error(f"Error, wrong file uploaded, only files with {','.join(ALLOWED_EXTENSIONS)} extentions allowed.")
             generic.log_error_to_db(f"Error, wrong file uploaded, only files with {','.join(ALLOWED_EXTENSIONS)} extentions allowed.", 0, 0, 0)
-            return False
+            is_success= False
     except Exception as e:
         logging.error(f"Error in Initial checks for uploaded files: {e}", exc_info=True)
-        return False
+        is_success= False
     finally:
-         if FILE_ARCHIVALPATH:
-            logging.debug(f"File archieval started")
-            file_name = file_name = os.path.basename(fileSourcePath)
-            file_name = f"{datetime.now().strftime('%d%m%y%H%M%S')}_{file_name}"
-            archive_folder = os.path.join(FILE_ARCHIVALPATH, "Success" if error_count == 0 else "Failed")
-            archive_completePath = os.path.join(archive_folder, file_name)
-            os.makedirs(archive_folder, exist_ok=True)
-            os.rename(fileSourcePath, archive_completePath)
-            logging.debug(f"File archieved")
-        
-            return True;
+        error_count = dbOperations.getData_scalar(None, config.get_env_variable("error_table"), "count(1)", "","")
+        if error_count > 0 or fileId ==0:
+            is_success= False
+        fileArchive(fileSourcePath, error_count)      
+        return is_success, uploadedMonth, uploadedYear;
+
+def fileArchive(fileSourcePath, error_count):
+    try:
+        if FILE_ARCHIVALPATH:
+                logging.debug(f"File archieval started")
+                file_name = file_name = os.path.basename(fileSourcePath)
+                file_name = f"{datetime.now().strftime('%d%m%y%H%M%S')}_{file_name}"
+                archive_folder = os.path.join(FILE_ARCHIVALPATH, "Success" if error_count == 0 else "Failed")
+                archive_completePath = os.path.join(archive_folder, file_name)
+                os.makedirs(archive_folder, exist_ok=True)
+                os.rename(fileSourcePath, archive_completePath)
+                logging.debug(f"File archieved")
+    except Exception as ex:
+        logging.error("Failed to archive file")
+
+def checkIfTBAlreadyExists(fileSourcePath):
+    is_check_failed = 0
+    try:
+        if fileSourcePath.endswith(tuple(ALLOWED_EXTENSIONS)):
+            logging.debug(f"New file detected: {fileSourcePath}")
+            dbOperations.execute_stored_procedure('dbsp_TBArchieveErrors', None)
+            
+            def read_excel_and_check_data(file_path):
+                fileId = 0
+                with pd.ExcelFile(file_path, engine='openpyxl') as xls:
+                    try:
+                        df = pd.read_excel(xls, usecols=[0, 1, 2, 3, 4], nrows=HEADER_ROW)
+                        for (row_idx, col), cell in df.stack().items():
+                            col_idx = df.columns.get_loc(col)
+                            if isinstance(cell, str) and "Period =" in cell:
+                                #match = re.search(r"Period = (\w+ \d{4})", cell)
+                                match = re.search(r"Period\s*=\s*([A-Za-z]+)\s+(\d{4})", cell)
+                                if match:
+                                    month = match.group(1)
+                                    year = match.group(2)
+
+                                    if not helper.try_parse(year, int):
+                                        logging.error(f"Error period field have wrong/missing year: {year} informathion")
+                                        generic.log_error_to_db(f"Error, period field have wrong/missing year informathion, excel contains value:{cell}", row_idx, col_idx, 0)
+
+                                    month_numeric = generic.get_month_number(month)
+                                    if month_numeric:
+                                        fileId = dbOperations.getData_scalar(None, f'TB_FILE_MONTH_LINK WHERE TBMonth = {month_numeric} AND TBYear = {int(year)} AND DEACTIVATE = 0', 'COUNT(1)', None, None) 
+                                        if fileId >0 :
+                                            logging.debug(f"Data already exists for Year: {int(year)} and Month :{month_numeric}")
+                                        else:
+                                            logging.debug(f"No data exists for Year: {int(year)} and Month :{month_numeric}")
+                                    else:
+                                        logging.error(f"Error, period field have wrong/missing month: {month} informathion")
+                                        generic.log_error_to_db(f"Error, period field missing Month information, excel contains value:{cell}", row_idx, col_idx, 0)
+                                        fileId =-1
+                                    break;
+                                else:
+                                    logging.error(f"Unable to find Perid data in excel")
+                                    generic.log_error_to_db(f"Error period details not available in uploaded file, looks like wrong file or someone removed that data", 4, 1, 0)
+                                    fileId=-1
+                        if fileId == -1:
+                            logging.error(f"Unable to find Perid data in uploaded excel file")
+                            generic.log_error_to_db(f"Error - period details not available in uploaded file, looks like wrong file or someone removed that data", 4, 1, 0)
+                        
+                        if 'df' in locals() and not df.empty: del df
+                    except Exception as e:
+                        logging.error(f"Error ocurred while start file processing: {e}", exc_info=True)
+                    finally:
+                        xls.close()
+                        return fileId
+                    
+            is_check_failed = read_excel_and_check_data(fileSourcePath)
+        else:
+            logging.error(f"Error, wrong file uploaded, only files with {','.join(ALLOWED_EXTENSIONS)} extentions allowed.")
+            generic.log_error_to_db(f"Error, wrong file uploaded, only files with {','.join(ALLOWED_EXTENSIONS)} extentions allowed.", 0, 0, 0)
+            is_check_failed =-1
+    except Exception as e:
+        logging.error(f"Error in Initial checks for uploaded files: {e}", exc_info=True)
+        is_check_failed =-1
+    finally:
+        return is_check_failed
