@@ -41,6 +41,7 @@ CREATE TABLE TB_TrialBalance(
 	particulars_id int,
 	tb_amount DECIMAL(18, 2) DEFAULT 0.0,
 	tb_date datetime default current_timestamp,
+	FOREIGN KEY (fileId) REFERENCES TB_FILE_MONTH_LINK(id),
 	FOREIGN KEY (head_id) REFERENCES TB_MISHead(head_id),
 	FOREIGN KEY (particulars_id) REFERENCES TB_Particulars(Id)
 )
@@ -132,6 +133,74 @@ AS
 	END
 GO
 
+CREATE OR ALTER PROC dbsp_GetTrialBalanceData(@tbMonth int, @tbYear int, @branchCode varchar(max) ='')
+AS
+BEGIN
+	/* 
+		EXEC dbsp_GetTrialBalanceData 4, 2024, 'bnlpjuls,bnahchcf,bnbgdoba'
+	*/
+
+	DECLARE @cols AS NVARCHAR(MAX), @colsNullhandling NVARCHAR(MAX);
+	DECLARE @query AS NVARCHAR(MAX);
+
+	IF (@tbMonth = 0) SET @tbMonth = MONTH(CURRENT_TIMESTAMP)
+	IF @TBYEAR = 0 SET @tbYear = YEAR(CURRENT_TIMESTAMP)
+
+	IF len(TRIM(@branchCode)) =0 
+		-- Step 1: Dynamically generate the list of branch_ids for pivot columns
+		SELECT	@cols = STRING_AGG(QUOTENAME(OUTLETCODE), ','),
+				@colsNullhandling = STRING_AGG(CONCAT('ISNULL(',QUOTENAME(OUTLETCODE),',0) ', QUOTENAME(OUTLETCODE)), ',')
+		FROM (SELECT DISTINCT OUTLETCODE FROM MST_OUTLET MO
+				LEFT JOIN TB_TrialBalance TB ON MO.OUTLETCODE = TB.BRANCH_ID 
+				WHERE MO.IsActive = 1
+				GROUP BY OUTLETCODE
+				HAVING SUM(CASE WHEN TB.tb_amount IS NOT NULL THEN 1 ELSE 0 END) > 0
+			) AS Branches;
+	ELSE
+		BEGIN
+			-- Creating @COLS by adding square brackets
+			SET @COLS = '[' + REPLACE(@branchCode, ',', '],[') + ']';
+
+			-- Creating @colsNullHandling with ISNULL function
+			SET @colsNullHandling = STUFF((
+				SELECT ', ISNULL(' + value + ', 0) ' + value
+				FROM STRING_SPLIT(@branchCode, ',')
+				FOR XML PATH(''), TYPE
+				).value('.', 'NVARCHAR(MAX)'), 1, 2, '');  -- Remove the leading comma
+		END
+
+	-- Step 2: Build the dynamic SQL query for pivoting
+	SET @query = '
+		WITH TrialBalanceData AS (
+			SELECT 
+				mh.head_name,
+				mh.nature,
+				p.code,
+				p.particulars,
+				tb.branch_id,
+				tb.tb_amount
+			FROM TB_TrialBalance tb
+			INNER JOIN TB_MISHead mh ON tb.head_id = mh.head_id
+			INNER JOIN TB_Particulars p ON tb.particulars_id = p.Id
+			INNER JOIN TB_FILE_MONTH_LINK tf ON TB.FILEID = TF.ID AND TF.TBMonth = '+CAST(@tbMonth AS VARCHAR(2)) +' AND TF.TBYear = '+CAST(@tbYear AS VARCHAR(4)) +'
+		)
+		SELECT 
+			head_name,
+			nature,
+			code,
+			particulars, ' + @colsNullhandling + '
+		FROM TrialBalanceData
+		PIVOT (
+			SUM(tb_amount)
+			FOR branch_id IN (' + @cols + ')
+		) AS PivotedData
+		ORDER BY head_name, code;
+	';
+
+	-- Step 3: Execute the dynamic SQL
+	EXEC sp_executesql @query;
+END
+GO
 
 SELECT * FROM TB_FILE_MONTH_LINK;
 SELECT * FROM TB_MISHead;
