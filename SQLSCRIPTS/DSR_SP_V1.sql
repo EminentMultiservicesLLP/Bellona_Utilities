@@ -31,7 +31,6 @@ BEGIN
 			AND MO.ClusterID = (CASE WHEN ISNULL(@clusterId, 0) = 0 THEN MO.ClusterID ELSE @clusterId END)
 			AND OutletCode = (CASE WHEN ISNULL(@branchCode , '0') = '0' THEN OutletCode ELSE @branchCode END)  
 	
-
 	IF OBJECT_ID('tempdb..#CTE_ITEM_SALE_TEMP') IS NOT NULL DROP TABLE #CTE_ITEM_SALE_TEMP;
 	IF OBJECT_ID('tempdb..#CTE_NETSALE_TEMP') IS NOT NULL DROP TABLE #CTE_NETSALE_TEMP;
 	IF OBJECT_ID('tempdb..#CTE_DELIVERY_TEMP') IS NOT NULL DROP TABLE #CTE_DELIVERY_TEMP;
@@ -43,7 +42,6 @@ BEGIN
 	IF OBJECT_ID('tempdb..#SalesData_DINEOUT_TEMP') IS NOT NULL DROP TABLE #SalesData_DINEOUT_TEMP;
 	IF OBJECT_ID('tempdb..#SalesData_EAZYDINER_TEMP') IS NOT NULL DROP TABLE #SalesData_EAZYDINER_TEMP;
 
-
 	/* exec dbo.dbsp_GetDSR_Summary @Startdt = '2024-09-14',  @Enddt = '2024-09-14', @branchCode='bnmaisha' */
 	/** Get Sale Main Category details 
 		1.	Here we are taking Netamount of each Item category like Foodsale, Beverage sale...
@@ -52,37 +50,35 @@ BEGIN
 		Note: There are few sales which are marked as NC (No Charge), we need to exclude those from total sale for food, beverage....
 	*******/
 	
-		SELECT 	
-			SI.branchCode,
-			SUM(CASE WHEN AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS FoodSale,
-			SUM(CASE WHEN AccountName = 'Beverage Sale' THEN SIT.NetAmount ELSE 0 END) AS BeverageSale,
-			SUM(CASE WHEN AccountName = 'LIQUOR SALE' THEN SIT.NetAmount ELSE 0 END) AS LiquorSale,
-			SUM(CASE WHEN AccountName = 'TOBACCO SALE' THEN SIT.NetAmount ELSE 0 END) AS TobaccoSale,
-			SUM(CASE WHEN AccountName NOT IN ('Food Sale', 'Beverage Sale', 'TOBACCO SALE', 'LIQUOR SALE') THEN SIT.NetAmount ELSE 0 END) AS OtherSale
-		INTO #CTE_ITEM_SALE_TEMP 
-		FROM Rista_SaleInvoices (NOLOCK) SI 
-		INNER JOIN Rista_SaleItems (NOLOCK) SIT ON SIT.InvoiceID = SI.InvoiceID
-		INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
-		WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt 
-			--AND SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
-			AND SI.InvoiceType <> 'NC' AND SI.Status <> 'Cancelled'
-		GROUP BY SI.branchCode
+	SELECT 	
+		SI.branchCode,
+		SUM(CASE WHEN AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS FoodSale,
+		SUM(CASE WHEN AccountName = 'Beverage Sale' THEN SIT.NetAmount ELSE 0 END) AS BeverageSale,
+		SUM(CASE WHEN AccountName = 'LIQUOR SALE' THEN SIT.NetAmount ELSE 0 END) AS LiquorSale,
+		SUM(CASE WHEN AccountName = 'TOBACCO SALE' THEN SIT.NetAmount ELSE 0 END) AS TobaccoSale,
+		SUM(CASE WHEN AccountName NOT IN ('Food Sale', 'Beverage Sale', 'TOBACCO SALE', 'LIQUOR SALE') THEN SIT.NetAmount ELSE 0 END) AS OtherSale
+	INTO #CTE_ITEM_SALE_TEMP 
+	FROM Rista_SaleInvoices (NOLOCK) SI 
+	INNER JOIN Rista_SaleItems (NOLOCK) SIT ON SIT.InvoiceID = SI.InvoiceID
+	INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
+	WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt 
+		--AND SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
+		AND SI.InvoiceType <> 'NC' AND SI.Status <> 'Cancelled'
+	GROUP BY SI.branchCode
 	
 	
-		SELECT	SI.branchCode,
-				SUM(SI.NETAMOUNT) NetSale,
-				SUM(SI.NetDiscountAmount) NetDiscountAmount,
-				SUM(SI.NetChargeAmount) NetChargeAmount,
-				SUM(SI.NetDirectChargeAmount) DirectCharge
-		INTO #CTE_NETSALE_TEMP
-		FROM Rista_SaleInvoices (NOLOCK) SI
-		INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
-		WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt  
-			--AND SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
-			AND SI.InvoiceType <> 'NC' AND SI.Status <> 'Cancelled'
-		GROUP BY SI.branchCode
-
-
+	SELECT	SI.branchCode,
+			SUM(SI.NETAMOUNT) NetSale,
+			SUM(SI.NetDiscountAmount) NetDiscountAmount,
+			SUM(SI.NetChargeAmount) NetChargeAmount,
+			SUM(SI.NetDirectChargeAmount) DirectCharge
+	INTO #CTE_NETSALE_TEMP
+	FROM Rista_SaleInvoices (NOLOCK) SI
+	INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
+	WHERE SI.InvoiceDay BETWEEN @Startdt and @Enddt  
+		--AND SI.branchCode = (CASE WHEN @branchCode IS NULL THEN SI.branchCode ELSE @branchCode END)
+		AND SI.InvoiceType <> 'NC' AND SI.Status <> 'Cancelled'
+	GROUP BY SI.branchCode
 
 	
 	SELECT	SI.branchCode,
@@ -152,71 +148,71 @@ BEGIN
 	GROUP BY SI.branchCode
 	
 	
-		SELECT
-			rsi.BRANCHCODE,
-			ISNULL(SUM(rsp.Amount), 0) AS DINEINSALE,
-			ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
-			COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
-		INTO #SalesData_ZOMATO_TEMP
-		FROM Rista_SaleInvoices (NOLOCK) rsi
-		INNER JOIN @OUTLETS MO ON RSI.branchCode = MO.BRANCHCODE
-		INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
-		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
-		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
-				AND rsp.mode like '%Zomato%PRO%'  AND RSI.InvoiceType <> 'NC'   AND RSI.Status <> 'Cancelled' 
-				--and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
-		GROUP BY rsi.branchCode
+	SELECT
+		rsi.BRANCHCODE,
+		ISNULL(SUM(rsp.Amount), 0) AS DINEINSALE,
+		ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
+		COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
+	INTO #SalesData_ZOMATO_TEMP
+	FROM Rista_SaleInvoices (NOLOCK) rsi
+	INNER JOIN @OUTLETS MO ON RSI.branchCode = MO.BRANCHCODE
+	INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
+	LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
+	WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
+			AND rsp.mode like '%Zomato%PRO%'  AND RSI.InvoiceType <> 'NC'   AND RSI.Status <> 'Cancelled' 
+			--and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
+	GROUP BY rsi.branchCode
 	
 	
-		SELECT
-			rsi.BRANCHCODE,
-			ISNULL(SUM(rsp.Amount), 0) AS DINEINSALE,
-			ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
-			COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
-		INTO #SalesData_DINEOUT_TEMP
-		FROM Rista_SaleInvoices (NOLOCK) rsi
-		INNER JOIN @OUTLETS MO ON RSI.branchCode = MO.BRANCHCODE
-		INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
-		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
-		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
-				AND rsp.mode like '%Dine%Out%'  AND RSI.InvoiceType <> 'NC' AND RSI.Status <> 'Cancelled'
-				--and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
-		GROUP BY rsi.branchCode
+	SELECT
+		rsi.BRANCHCODE,
+		ISNULL(SUM(rsp.Amount), 0) AS DINEINSALE,
+		ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
+		COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
+	INTO #SalesData_DINEOUT_TEMP
+	FROM Rista_SaleInvoices (NOLOCK) rsi
+	INNER JOIN @OUTLETS MO ON RSI.branchCode = MO.BRANCHCODE
+	INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
+	LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
+	WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
+			AND rsp.mode like '%Dine%Out%'  AND RSI.InvoiceType <> 'NC' AND RSI.Status <> 'Cancelled'
+			--and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
+	GROUP BY rsi.branchCode
 	
 	
-		SELECT
-			rsi.BRANCHCODE,
-			ISNULL(SUM(rsp.Amount), 0) AS DINEINSALE,
-			ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
-			COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
-		INTO #SalesData_EAZYDINER_TEMP
-		FROM Rista_SaleInvoices (NOLOCK) rsi
-		INNER JOIN @OUTLETS MO ON RSI.branchCode = MO.BRANCHCODE
-		INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
-		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
-		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
-				AND rsp.mode like '%EASY%DINER%'   AND RSI.InvoiceType <> 'NC'  AND RSI.Status <> 'Cancelled'
-				--and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
-		GROUP BY rsi.branchCode
+	SELECT
+		rsi.BRANCHCODE,
+		ISNULL(SUM(rsp.Amount), 0) AS DINEINSALE,
+		ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
+		COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
+	INTO #SalesData_EAZYDINER_TEMP
+	FROM Rista_SaleInvoices (NOLOCK) rsi
+	INNER JOIN @OUTLETS MO ON RSI.branchCode = MO.BRANCHCODE
+	INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
+	LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
+	WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  and rssi.InvoiceID IS NULL
+			AND rsp.mode like '%EASY%DINER%'   AND RSI.InvoiceType <> 'NC'  AND RSI.Status <> 'Cancelled'
+			--and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
+	GROUP BY rsi.branchCode
 	
 	
-		SELECT
-			rsi.BRANCHCODE,
-			ISNULL(SUM(rsp.Amount), 0) AS DINEINSALE,
-			ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
-			COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
-		INTO #SalesData_OTHER_TEMP
-		FROM Rista_SaleInvoices (NOLOCK) rsi
-		INNER JOIN @OUTLETS MO ON RSI.branchCode = MO.BRANCHCODE
-		INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
-		INNER JOIN PAYMENT_AGGREGATOR (NOLOCK) PA ON RSP.Mode = PA.AGGREGATOR
-			AND PA.AGGREGATOR NOT LIKE '%Zomato%PRO%' AND PA.AGGREGATOR NOT LIKE '%EASY%DINER%' AND PA.AGGREGATOR NOT LIKE '%Dine%Out%'
-		LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
-		WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  
-				and rssi.InvoiceID IS NULL 
-				AND RSI.InvoiceType <> 'NC'  AND RSI.Status <> 'Cancelled'
-				--and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
-		GROUP BY rsi.branchCode
+	SELECT
+		rsi.BRANCHCODE,
+		ISNULL(SUM(rsp.Amount), 0) AS DINEINSALE,
+		ISNULL(SUM(RSI.PERSONCOUNT), 0) AS DINEINCOVERS,
+		COUNT(DISTINCT RSI.INVOICEID) AS DINEINBILLS
+	INTO #SalesData_OTHER_TEMP
+	FROM Rista_SaleInvoices (NOLOCK) rsi
+	INNER JOIN @OUTLETS MO ON RSI.branchCode = MO.BRANCHCODE
+	INNER JOIN Rista_SalePayments (NOLOCK) rsp ON rsi.InvoiceID = rsp.InvoiceID
+	INNER JOIN PAYMENT_AGGREGATOR (NOLOCK) PA ON RSP.Mode = PA.AGGREGATOR
+		AND PA.AGGREGATOR NOT LIKE '%Zomato%PRO%' AND PA.AGGREGATOR NOT LIKE '%EASY%DINER%' AND PA.AGGREGATOR NOT LIKE '%Dine%Out%'
+	LEFT JOIN Rista_SaleSourceInfo (NOLOCK) rssi ON rsi.InvoiceID = rssi.InvoiceID
+	WHERE	rsi.InvoiceDay BETWEEN @Startdt and @Enddt  
+			and rssi.InvoiceID IS NULL 
+			AND RSI.InvoiceType <> 'NC'  AND RSI.Status <> 'Cancelled'
+			--and rsi.branchCode = (CASE WHEN @branchCode IS NULL THEN rsi.branchCode ELSE @branchCode END)
+	GROUP BY rsi.branchCode
 	
 	
 	SELECT	DISTINCT cis.branchCode,MO.BRANCHNAME, MO.CLUSTERNAME, MO.CityName, 

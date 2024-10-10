@@ -8,6 +8,18 @@ load_dotenv()
 # Initialize the logger
 logger = setup_logging()
 
+def connect_db_sqlalchemy():
+    try:
+        password = os.getenv("PWD") .replace("@", "%40")
+        if os.getenv("db_environment", "").lower() in ["prod", "production", "live"]:
+            connection_string = f'mssql+pyodbc://{os.getenv("UID")}:{password}@{os.getenv("DB_SERVER")}/{os.getenv("database")}?driver=ODBC+Driver+17+for+SQL+Server'
+        else:
+            connection_string = f'mssql+pyodbc://{os.getenv("DB_SERVER")}/{os.getenv("database")}?driver=ODBC+Driver+17+for+SQL+Server;Trusted_Connection=yes'
+        return connection_string
+    except pyodbc.Error as e:
+        logger.error(f"Error forming DB connection string: {e}")
+        return None
+
 global_cursor = None
 def set_cursor(cursor):
     global global_cursor

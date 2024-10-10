@@ -10,14 +10,21 @@ WATCH_DIRECTORY = config.get_env_variable('WATCH_DIRECTORY', "")
 @app.route('/api/home/processTBFile', methods=['POST'])
 def start_FileProcessing():
     try:
-        file_path = ReadRequestDetails(request)    
+        fileId, file_path, uploadedMonth,uploadedYear = ReadRequestDetails(request)
+        if not fileId is None and fileId > 0:
+            file_path,uploadedMonth,uploadedYear = fileprocess.GetFileDetailsByFileId(fileId)
+            if not os.path.exists(file_path):
+                logging.debug("Error: File not found, error send with 404 status code")
+                return jsonify({"ResponsePhrase": "Failed", "value":"File not found"}), 404
 
-        # Check if the file exists
-        if not os.path.exists(file_path):
-            logging.debug("Error: File not found, error send with 404 status code")
-            return jsonify({"ResponsePhrase": "Failed", "value":"File not found"}), 404
-
-        status, uploadedMonth, uploadedYear = fileprocess.StartFileProcessing(file_path)
+        else:
+             # Check if the file exists
+            if not os.path.exists(file_path):
+                logging.debug("Error: File not found, error send with 404 status code")
+                return jsonify({"ResponsePhrase": "Failed", "value":"File not found"}), 404
+            
+            status = fileprocess.StartFileProcessing(file_path, uploadedMonth, uploadedYear)
+            
         if status:
             logging.debug(f"File processed successfully for Month {uploadedMonth} and Year {uploadedYear}")
             return jsonify({"ResponsePhrase": "Success", "value":f"File processed successfully for Month {uploadedMonth} and Year {uploadedYear}"}), 200
@@ -31,13 +38,13 @@ def start_FileProcessing():
 @app.route('/api/home/checkTBAlreadyUploaded', methods=['GET'])
 def CheckTBAlreadyExist():
     try:
-        file_path = ReadRequestDetails(request)
+        file_path, tbMonth,tbYear = ReadRequestDetails(request)
         # Check if the file exists
         if not os.path.exists(file_path):
             logging.debug("Error: File not found, error send with 404 status code")
             return jsonify({"ResponsePhrase": "Failed", "value":"File not found"}), 404
 
-        status = fileprocess.checkIfTBAlreadyExists(file_path)
+        status = fileprocess.checkIfTBAlreadyExists(file_path, tbMonth, tbYear)
  
         if status == 0:
             logging.debug("No record exist and good for processing")
@@ -53,21 +60,38 @@ def CheckTBAlreadyExist():
 
 
 def ReadRequestDetails(request):
+    fileId = 0
+    file_path=''
+    tbMonth=0
+    tbYear=0
     logging.debug("Request received")
     # Try to get data from JSON body (POST requests typically)
-    request_data = request.get_json(silent=True)
-    logging.debug(f"json_data: {request_data}")
+    json_data = request.get_json(silent=True)
+    logging.debug(f"json_data: {json_data}")
 
     # Try to get data from query string (GET requests)
     query_params = request.args
     logging.debug(f"query_params: {query_params}")
 
-    json_data = json.loads(request_data.replace("\\", "\\\\"))
-    # If no data is passed in JSON, fall back to query params
-    file_path = json_data.get('file_path') if json_data else query_params.get('file_path')
-    logging.debug(f"File location shared:{file_path}")
+    lowercase_JSON_data = {key.lower(): value for key, value in json_data.items()}
+    logging.debug(f"lowercase_JSON_data: {lowercase_JSON_data}")
 
-    return file_path
+    if any(key == "fileid" for key in lowercase_JSON_data):
+        fileId = lowercase_JSON_data.get("fileid")
+        logging.debug(f"fileId: {fileId}")
+    if any(key == "file_path" for key in lowercase_JSON_data):
+        file_path = lowercase_JSON_data.get("file_path")
+        logging.debug(f"file_path: {file_path}")
+    
+    if any(key == "tbmonth" for key in lowercase_JSON_data):
+        tbMonth = lowercase_JSON_data.get("tbmonth")
+        logging.debug(f"tbmonth: {tbMonth}")
+    
+    if any(key.lower() == "tbyear" for key in lowercase_JSON_data):
+        tbYear = lowercase_JSON_data.get("tbyear")
+        logging.debug(f"tbyear: {tbYear}")
+
+    return fileId, file_path, tbMonth, tbYear
 
 if __name__ == '__main__':
     app.run(port=8090)

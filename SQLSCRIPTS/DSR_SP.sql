@@ -9,14 +9,6 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='INDX_InvoiceType_1' AND object_id = OBJECT_ID('[dbo].[Rista_SaleInvoices]'))
-BEGIN
-	CREATE NONCLUSTERED INDEX INDX_InvoiceType_1
-	ON [dbo].[Rista_SaleInvoices] ([InvoiceType])
-	INCLUDE ([branchCode],[InvoiceDay],[NetDiscountAmount],[NetDirectChargeAmount],[NetAmount],[NetChargeAmount])
-END
-GO
-
 IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='INDX_InvoiceId' AND object_id = OBJECT_ID('[dbo].[Rista_SaleItems]'))
 BEGIN
 	CREATE NONCLUSTERED INDEX [INDX_InvoiceId]
@@ -25,21 +17,13 @@ BEGIN
 END
 go
 
-IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='INDX_InvoiceType' AND object_id = OBJECT_ID('[dbo].[Rista_SaleInvoices]'))
+IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='INDX_SALE_INVOICE_BRANCH_DAY_TYPE_STATUS' AND object_id = OBJECT_ID('[dbo].[Rista_SaleInvoices]'))
 BEGIN
-	CREATE NONCLUSTERED INDEX INDX_InvoiceType
-	ON [dbo].[Rista_SaleInvoices] ([InvoiceType])
-	INCLUDE ([branchCode],[InvoiceDay])
+	CREATE NONCLUSTERED INDEX INDX_SALE_INVOICE_BRANCH_DAY_TYPE_STATUS
+	ON [dbo].[Rista_SaleInvoices] ([branchCode],[InvoiceDay],[InvoiceType],[Status])
 END
 Go
 
-IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='INDX_InvoiceType_personcount' AND object_id = OBJECT_ID('[dbo].[Rista_SaleInvoices]'))
-BEGIN
-	CREATE NONCLUSTERED INDEX [INDX_InvoiceType_personcount]
-	ON [dbo].[Rista_SaleInvoices] ([InvoiceType],[Status])
-	INCLUDE ([branchCode],[InvoiceDay],[PersonCount])
-END
-Go
 
 
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'MST_SaleTimeSessions' AND TABLE_SCHEMA = 'DBO')
