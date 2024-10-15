@@ -13,6 +13,7 @@ AS
 BEGIN
 	/*
 		EXEC [dbo].[dbsp_GetWeekly_CoversTrend] @WEEK = 'WEEK 27', @FINANCIALYEAR = '2024-25',  @branchCode = 'bnahisha'
+		EXEC [dbo].[dbsp_GetDSR_Comparision_Daywise] @USERDATE = '2024-09-14'
 	*/
 
 	--DECLARE @WEEK VARCHAR(20) = 'WEEK 27', @FINANCIALYEAR VARCHAR(10) = '2024-25',  @branchCode varchar(20) = 'bnahisha', @clusterId int = 0, @cityId int = 0 
