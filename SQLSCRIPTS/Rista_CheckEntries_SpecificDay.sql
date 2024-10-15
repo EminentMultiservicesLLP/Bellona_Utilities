@@ -1,5 +1,7 @@
 DECLARE @INVOICEDAY VARCHAR(20);
-SET @INVOICEDAY = '2024-09-28';
+SET @INVOICEDAY = '2024-10-04';
+
+SELECT COUNT(DISTINCT R.branchCode) FROM Rista_SaleInvoices(nolock) R WHERE InvoiceDay = @INVOICEDAY;
 
 select count(distinct invoiceid) Invoice FROM Rista_SaleInvoices (nolock) WHERE InvoiceDay = @INVOICEDAY;
 

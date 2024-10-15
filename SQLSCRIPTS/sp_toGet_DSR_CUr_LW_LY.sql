@@ -1,25 +1,18 @@
 
 -- DATE, DAY, WEEK WILL BE PASSED
 -- CURRENT DAY DATA NEE TO SHOW
-DECLARE @USERDATE DATETIME = '2024-09-14',   @branchCode varchar(20) = 'bnahisha', @clusterId int = 0, @cityId int = 0 
-DECLARE @Startdt datetime, @Enddt  datetime
-DECLARE @CUR_DAY VARCHAR(20), @CUR_WEEK VARCHAR(20)
-DECLARE @LW_DAY VARCHAR(20), @LW_WEEK VARCHAR(20), @LW_DATE DATETIME
-DECLARE @LY_DAY VARCHAR(20), @LY_WEEK VARCHAR(20), @LY_DATE DATETIME
+DECLARE @WEEK VARCHAR(20) = 'WEEK 27', @FINANCIALYEAR VARCHAR(10) = '2024-25',  @branchCode varchar(20) = 'bnahisha', @clusterId int = 0, @cityId int = 0 
+DECLARE @Startdt DATETIMEOFFSET, @Enddt  DATETIMEOFFSET
 DECLARE @OUTLETS TABLE(BRANCHCODE VARCHAR(20), BRANCHNAME VARCHAR(255), CLUSTERNAME VARCHAR(255), CityName VARCHAR(100))
+DECLARE @cols AS NVARCHAR(250), @colsNullhandling NVARCHAR(250), @query AS NVARCHAR(MAX);
 
-IF OBJECT_ID('tempdb..#CUR_SALE_TEMP') IS NOT NULL DROP TABLE #CUR_SALE_TEMP;
-IF OBJECT_ID('tempdb..#LW_SALE_TEMP') IS NOT NULL DROP TABLE #LW_SALE_TEMP;
-IF OBJECT_ID('tempdb..#LY_SALE_TEMP') IS NOT NULL DROP TABLE #LY_SALE_TEMP;
-
---SELECT  * FROM Transaction_DateRange
-SELECT @CUR_DAY = [Days], @CUR_WEEK = WeekNo  FROM Transaction_DateRange WHERE [DATE] = @USERDATE;
-SELECT @LW_DAY = [Days], @LW_WEEK = WeekNo, @LW_DATE = [DATE]  FROM Transaction_DateRange WHERE [DATE] = DATEADD(DAY, -7, @USERDATE);
-SELECT @LY_DAY = [Days], @LY_WEEK = WeekNo, @LY_DATE = [DATE]  FROM Transaction_DateRange 
-	WHERE [DAYS] = @CUR_DAY AND [MONTH] = MONTH(@USERDATE)-2;
-	--WHERE WeekNo = @CUR_WEEK AND [DAYS] = @CUR_DAY AND [YEAR] = YEAR(@USERDATE)-1;
-
+IF OBJECT_ID('tempdb..#COVER_TEMP') IS NOT NULL DROP TABLE #COVER_TEMP;
 IF @branchCode = '0' SET @branchCode = NULL
+
+--SELECT * FROM Transaction_DateRange WHERE WeekNo = 'WEEK 27'
+SELECT @Startdt= MIN([DATE]), @Enddt = MAX([DATE]) FROM Transaction_DateRange WHERE WeekNo = @WEEK AND FinancialYear = @FINANCIALYEAR
+
+SELECT @Startdt, @Enddt
 
 INSERT @OUTLETS (BRANCHCODE, BRANCHNAME, CLUSTERNAME, CityName)
 SELECT distinct OutletCode BRANCHCODE, OutletName BRANCHNAME, MC.ClusterName, MCT.CityName
@@ -30,110 +23,42 @@ WHERE	MC.CityID =  (CASE WHEN ISNULL(@cityId, 0) = 0 THEN MC.CityID ELSE @cityId
 		AND MO.ClusterID = (CASE WHEN ISNULL(@clusterId, 0) = 0 THEN MO.ClusterID ELSE @clusterId END)
 		AND OutletCode = (CASE WHEN ISNULL(@branchCode , '0') = '0' THEN OutletCode ELSE @branchCode END)  
 
+SELECT
+	SI.InvoiceDay,
+	MST.SessionName,
+	MAX(SI.PersonCount) AS COVERS
+INTO #COVER_TEMP
+FROM  MST_SaleTimeSessions (NOLOCK) MST
+LEFT JOIN Rista_SaleInvoices (NOLOCK) SI ON CAST(SI.InvoiceDate AS TIME) BETWEEN MST.StartTime AND MST.EndTime
+INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE AND SI.InvoiceType <> 'NC' AND SI.Status <> 'Cancelled'
+WHERE SI.InvoiceDay BETWEEN @Startdt AND @Enddt
+GROUP BY MST.SessionName, SI.InvoiceDay
 
-SELECT @CUR_DAY, @CUR_WEEK, @LW_DAY, @LW_WEEK, @LW_DATE, @LY_DAY, @LY_WEEK, @LY_DATE
---SELECT * FROM @OUTLETS
 
---SELECT 	SI.InvoiceDay,
---	SUM(SI.PersonCount) COVERS,
---	SUM(CASE WHEN AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS FoodSale,
---	SUM(CASE WHEN AccountName = 'Beverage Sale' THEN SIT.NetAmount ELSE 0 END) AS BeverageSale,
---	SUM(CASE WHEN AccountName = 'LIQUOR SALE' THEN SIT.NetAmount ELSE 0 END) AS LiquorSale,
---	SUM(CASE WHEN AccountName = 'TOBACCO SALE' THEN SIT.NetAmount ELSE 0 END) AS TobaccoSale,
---	SUM(CASE WHEN AccountName NOT IN ('Food Sale', 'Beverage Sale', 'TOBACCO SALE', 'LIQUOR SALE') THEN SIT.NetAmount ELSE 0 END) AS OtherSale
---INTO #CUR_SALE_TEMP 
---FROM Rista_SaleInvoices (NOLOCK) SI 
---INNER JOIN Rista_SaleItems (NOLOCK) SIT ON SIT.InvoiceID = SI.InvoiceID
---INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
---WHERE	SI.InvoiceDay = @LW_DATE
---		AND SI.InvoiceType <> 'NC' AND SI.Status <> 'Cancelled'
---GROUP BY SI.InvoiceDay
 
-;WITH CTE_InvoiceData AS (
-	SELECT SI.InvoiceDay, sum(SI.PersonCount) PersonCount, SUM(SI.NetChargeAmount) NetChargeAmount
-	FROM Rista_SaleInvoices (NOLOCK) SI
-	INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
-	WHERE SI.InvoiceDay = @USERDATE AND SI.InvoiceType <> 'NC' AND SI.Status <> 'Cancelled'
-	group by InvoiceDay
-)
-SELECT	InvoiceDay, COVERS, (FoodSale + BeverageSale + LiquorSale + TobaccoSale + OtherSale)/COVERS APC,
-	FoodSale, BeverageSale, LiquorSale, TobaccoSale, OtherSale, NetChargeAmount, (FoodSale + BeverageSale + LiquorSale + TobaccoSale + OtherSale + NetChargeAmount) TOTAL
-INTO #CUR_SALE_TEMP
+SELECT @cols = STRING_AGG(''''+ SessionName, ''',') WITHIN GROUP (ORDER BY starttime) FROM MST_SaleTimeSessions;
+SELECT @colsNullhandling = STRING_AGG('['+[InvoiceDay], '],') WITHIN GROUP (ORDER BY InvoiceDay)
 FROM (
-	SELECT
-		ID.InvoiceDay,
-		MAX(ID.PersonCount) AS COVERS,
-		MAX(ID.NetChargeAmount) AS NetChargeAmount,
-		SUM(CASE WHEN SIT.AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS FoodSale,
-		SUM(CASE WHEN SIT.AccountName = 'Beverage Sale' THEN SIT.NetAmount ELSE 0 END) AS BeverageSale,
-		SUM(CASE WHEN SIT.AccountName = 'LIQUOR SALE' THEN SIT.NetAmount ELSE 0 END) AS LiquorSale,
-		SUM(CASE WHEN SIT.AccountName = 'TOBACCO SALE' THEN SIT.NetAmount ELSE 0 END) AS TobaccoSale,
-		SUM(CASE WHEN SIT.AccountName NOT IN ('Food Sale', 'Beverage Sale', 'TOBACCO SALE', 'LIQUOR SALE') THEN SIT.NetAmount ELSE 0 END) AS OtherSale
+    SELECT DISTINCT CONVERT(VARCHAR, [InvoiceDay], 120) AS [InvoiceDay] FROM #COVER_TEMP WHERE [InvoiceDay] IS NOT NULL 
+) AS DistinctInvoiceDays;
+
+SELECT * FROM #COVER_TEMP
+select @cols, @colsNullhandling
+--SELECT * FROM MST_SaleTimeSessions ORDER BY STARTTIME
+-- Now pivot the data to have InvoiceDay as columns
+SET @query = '
+	SELECT 
+		SessionName, '+ @colsNullhandling +']
+	FROM 
+		#COVER_TEMP
+	PIVOT (
+		SUM(Covers)
+		FOR SessionName IN (' + @cols + ')
+	) AS PivotedData
+	'
 	
-	FROM CTE_InvoiceData ID  -- Using the subquery for correct person count
-	INNER JOIN Rista_SaleInvoices SI ON ID.InvoiceDay = SI.InvoiceDay AND SI.InvoiceType <> 'NC' AND SI.[Status] <> 'Cancelled'
-	INNER JOIN Rista_SaleItems (NOLOCK) SIT ON SIT.InvoiceID = SI.InvoiceID
-	INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
-	GROUP BY ID.InvoiceDay
-) TEMP_SALE;
+PRINT(@query)
+
+EXEC sp_executesql @query;
 
 
-;WITH CTE_InvoiceData AS (
-	SELECT SI.InvoiceDay, sum(SI.PersonCount) PersonCount, SUM(SI.NetChargeAmount) NetChargeAmount
-	FROM Rista_SaleInvoices (NOLOCK) SI
-	INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
-	WHERE SI.InvoiceDay = @LW_DATE AND SI.InvoiceType <> 'NC' AND SI.Status <> 'Cancelled'
-	group by InvoiceDay
-)
-SELECT	InvoiceDay, COVERS, (FoodSale + BeverageSale + LiquorSale + TobaccoSale + OtherSale)/COVERS APC,
-	FoodSale, BeverageSale, LiquorSale, TobaccoSale, OtherSale, NetChargeAmount, (FoodSale + BeverageSale + LiquorSale + TobaccoSale + OtherSale + NetChargeAmount) TOTAL
-INTO #LW_SALE_TEMP
-FROM (
-	SELECT
-		ID.InvoiceDay,
-		MAX(ID.PersonCount) AS COVERS,
-		MAX(ID.NetChargeAmount) AS NetChargeAmount,
-		SUM(CASE WHEN SIT.AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS FoodSale,
-		SUM(CASE WHEN SIT.AccountName = 'Beverage Sale' THEN SIT.NetAmount ELSE 0 END) AS BeverageSale,
-		SUM(CASE WHEN SIT.AccountName = 'LIQUOR SALE' THEN SIT.NetAmount ELSE 0 END) AS LiquorSale,
-		SUM(CASE WHEN SIT.AccountName = 'TOBACCO SALE' THEN SIT.NetAmount ELSE 0 END) AS TobaccoSale,
-		SUM(CASE WHEN SIT.AccountName NOT IN ('Food Sale', 'Beverage Sale', 'TOBACCO SALE', 'LIQUOR SALE') THEN SIT.NetAmount ELSE 0 END) AS OtherSale
-	
-	FROM CTE_InvoiceData ID  -- Using the subquery for correct person count
-	INNER JOIN Rista_SaleInvoices SI ON ID.InvoiceDay = SI.InvoiceDay AND SI.InvoiceType <> 'NC' AND SI.[Status] <> 'Cancelled'
-	INNER JOIN Rista_SaleItems (NOLOCK) SIT ON SIT.InvoiceID = SI.InvoiceID
-	INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
-	GROUP BY ID.InvoiceDay
-) TEMP_SALE;
-
-;WITH CTE_InvoiceData AS (
-	SELECT SI.InvoiceDay, sum(SI.PersonCount) PersonCount, SUM(SI.NetChargeAmount) NetChargeAmount
-	FROM Rista_SaleInvoices (NOLOCK) SI
-	INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
-	WHERE SI.InvoiceDay = @LY_DATE AND SI.InvoiceType <> 'NC' AND SI.Status <> 'Cancelled'
-	group by InvoiceDay
-)
-SELECT	InvoiceDay, COVERS, (FoodSale + BeverageSale + LiquorSale + TobaccoSale + OtherSale)/COVERS APC,
-	FoodSale, BeverageSale, LiquorSale, TobaccoSale, OtherSale, NetChargeAmount, (FoodSale + BeverageSale + LiquorSale + TobaccoSale + OtherSale + NetChargeAmount) TOTAL
-INTO #LY_SALE_TEMP
-FROM (
-	SELECT
-		ID.InvoiceDay,
-		MAX(ID.PersonCount) AS COVERS,
-		MAX(ID.NetChargeAmount) AS NetChargeAmount,
-		SUM(CASE WHEN SIT.AccountName = 'Food Sale' THEN SIT.NetAmount ELSE 0 END) AS FoodSale,
-		SUM(CASE WHEN SIT.AccountName = 'Beverage Sale' THEN SIT.NetAmount ELSE 0 END) AS BeverageSale,
-		SUM(CASE WHEN SIT.AccountName = 'LIQUOR SALE' THEN SIT.NetAmount ELSE 0 END) AS LiquorSale,
-		SUM(CASE WHEN SIT.AccountName = 'TOBACCO SALE' THEN SIT.NetAmount ELSE 0 END) AS TobaccoSale,
-		SUM(CASE WHEN SIT.AccountName NOT IN ('Food Sale', 'Beverage Sale', 'TOBACCO SALE', 'LIQUOR SALE') THEN SIT.NetAmount ELSE 0 END) AS OtherSale
-	
-	FROM CTE_InvoiceData ID  -- Using the subquery for correct person count
-	INNER JOIN Rista_SaleInvoices SI ON ID.InvoiceDay = SI.InvoiceDay AND SI.InvoiceType <> 'NC' AND SI.[Status] <> 'Cancelled'
-	INNER JOIN Rista_SaleItems (NOLOCK) SIT ON SIT.InvoiceID = SI.InvoiceID
-	INNER JOIN @OUTLETS MO ON SI.branchCode = MO.BRANCHCODE
-	GROUP BY ID.InvoiceDay
-) TEMP_SALE;
-
-SELECT * FROM #CUR_SALE_TEMP
-SELECT * FROM #LW_SALE_TEMP
-SELECT * FROM #LY_SALE_TEMP
