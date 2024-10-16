@@ -31,7 +31,8 @@ BEGIN
 	FROM MST_OUTLET MO 
 	INNER JOIN MST_Clusters MC ON MO.ClusterID = MC.ClusterID
 	INNER JOIN MST_Cities MCT ON MC.CityID = MCT.CityID
-	WHERE	MC.CityID =  (CASE WHEN ISNULL(@cityId, 0) = 0 THEN MC.CityID ELSE @cityId END)
+	WHERE	MO.IsActive = 1 	
+			AND MC.CityID =  (CASE WHEN ISNULL(@cityId, 0) = 0 THEN MC.CityID ELSE @cityId END)
 			AND MO.ClusterID = (CASE WHEN ISNULL(@clusterId, 0) = 0 THEN MO.ClusterID ELSE @clusterId END)
 			AND OutletCode = (CASE WHEN ISNULL(@branchCode , '0') = '0' THEN OutletCode ELSE @branchCode END)  
 
