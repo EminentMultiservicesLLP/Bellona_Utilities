@@ -1,4 +1,5 @@
 import pandas as pd
+import openpyxl
 import logging
 from datetime import datetime
 import time
@@ -8,12 +9,12 @@ import helper, dbOperations, generic, config
 from sqlalchemy import create_engine
 
 logging = setup_logging()
-
+Sheet_Name = ''
 HEADER_ROW = int(config.get_env_variable('HEADER_ROW', 1)) - 1  # Convert to 0-based index
 DATA_START_ROW = int(config.get_env_variable('DATA_START_ROW', 1)) - 1  # Convert to 0-based index
 ALLOWED_EXTENSIONS = ["." + ext if not ext.startswith(".") else ext for ext in config.get_env_variable('file_extentions_allowed',"").split(",")]
 FILE_ARCHIVALPATH = config.get_env_variable('file_archivalPath', "")
-expected_columns = {'Code', 'Particulars', 'Nature', 'MIS Head'}
+expected_columns = {'code', 'particulars', 'nature', 'mis head'}
 end_row_text_tofind = config.get_env_variable("TEXT_AT_END_ROW", "Total")
 
 start_branchcolumn_idex =(int(config.get_env_variable_inDigit("BRANCH_COLUMN_START"))) if helper.try_parse(config.get_env_variable("BRANCH_COLUMN_START"), int) else (helper.column_letter_to_index(config.get_env_variable("BRANCH_COLUMN_START", "E"))) 
@@ -35,21 +36,30 @@ def load_MIShead_Particulars():
 
 #validate mandatory fields available/missing in excel
 def Validate_MandatoryFields(columns,fileId):
-    missing_cols=[]
-    # Validate column names
-    actual_columns = set(columns)
+    error_message = ''
+    try:
+        missing_cols=[]
+        # Validate column names
+        #actual_columns = set(columns)
+        actual_columns = set(column.lower() for column in columns)
+        
+        
+        # Check for missing or extra columns
+        if not expected_columns.issubset(actual_columns):
+            missing_cols = expected_columns - actual_columns
+            #extra_cols = actual_columns - expected_columns
+        
+        if missing_cols:
+            logging.error(f"Missing columns: {', '.join(missing_cols)}")
+            error_message = f"Column {', '.join(missing_cols)} missing from uploaded file, please upload correct file."
+            generic.log_error_to_db(f"Required fields ({', '.join(missing_cols)}) missing from header in uploaded file.", HEADER_ROW, 0, '')
+            return False, error_message
+        return True, error_message
+    except Exception as ex:
+        error_message = f"Error: File processing failed, Internal server error. Ask Administrator to look into issue."
+        logging.error(f"Error: Unhandled error occure while validating Mandatory fields in uploaded file. {ex}")
+        return False, error_message
     
-    # Check for missing or extra columns
-    if not expected_columns.issubset(actual_columns):
-        missing_cols = expected_columns - actual_columns
-        #extra_cols = actual_columns - expected_columns
-    
-    if missing_cols:
-        logging.error(f"Missing columns: {', '.join(missing_cols)}")
-        generic.log_error_to_db(f"Required fields ({', '.join(missing_cols)}) missing from header in uploaded file.", HEADER_ROW, 0, '')
-        return False
-    return True
-
 def Validate_Row(code, particulars, nature, mis_head, index, row, columns, fileId):
     error_list =[]
     try:
@@ -73,7 +83,7 @@ def Validate_Row(code, particulars, nature, mis_head, index, row, columns, fileI
             error_list.append((f"Blank/Invalid data (expected text and can not be blank) for MIS head field at row {index+1} and column {helper.index_to_column_letter(misheads_col_index)}", index+1,  misheads_col_index, helper.index_to_column_letter(misheads_col_index),fileId))
 
         #Check if numeric columns contain valid numbers
-        numeric_cols = [col for col in columns if col not in expected_columns]
+        numeric_cols = [col.lower() for col in columns if col.lower() not in expected_columns]
         for col in numeric_cols:
             try:
                 col_idx = columns.get_loc(col) 
@@ -97,107 +107,128 @@ def Validate_Row(code, particulars, nature, mis_head, index, row, columns, fileI
         return error_list
 
 def ExcelDataChecks(df,fileId):
-    validation_Succeed = False
-    error_list=[]
-    logging.debug("Validation of Data Started")
-    
-    '''  follow below steps  -- Check if any of value is non numeric for expected Branch numeric values 
-    1.  # get subset field which falls for branch numeric details
-    2.  # Clean the data: strip any leading/trailing spaces
-    3.  # Convert to numeric, forcing non-numeric values to NaN
-    4.  # Check for any NaN values, which indicate non-numeric entries
-    5.  # If you want to see the rows and columns that contain non-numeric values
-    '''
-    # total_row_index = df.index[df.iloc[:, particulars_col_index].str.lower() == end_row_text_tofind.lower()].tolist()
-    # if not total_row_index :
-    #     total_row_index = df.index[df.iloc[:, code_col_index].str.lower() == end_row_text_tofind.lower()].tolist()
-
-    total_row_index = df.index[(df.iloc[:, particulars_col_index].str.lower() == end_row_text_tofind.lower()) | (df.iloc[:, code_col_index].str.lower() == end_row_text_tofind.lower())].tolist()
-
-    subset_df = df.iloc[:total_row_index[0], start_branchcolumn_idex-1:end_branchcolumn_index] if total_row_index else df.iloc[:, start_branchcolumn_idex-1:end_branchcolumn_index]
-    subset_df = subset_df.applymap(lambda x: str(x).strip() if isinstance(x, str) else x)
-    numeric_df = subset_df.apply(pd.to_numeric, errors='coerce')
-    non_numeric_mask = numeric_df.isna()
-    non_numeric_cells = non_numeric_mask.stack()[non_numeric_mask.stack()].index.tolist()
-    for row_idx, col_name in non_numeric_cells:
-        col_idx = df.columns.get_loc(col_name) +1
-        col_letter = helper.index_to_column_letter(col_idx)
-        error_list.append((f"Blank/Invalid (expected Numeric value) in column '{col_letter}' at row {row_idx+DATA_START_ROW +1}.", DATA_START_ROW+ row_idx+1, col_idx, col_letter ,fileId))
-
-    #check for empty field in first 4 columns which are (code, particulars, nature & MIS_Head)
-    subset_df = df.iloc[:total_row_index[0], 0:start_branchcolumn_idex-2] if total_row_index else df.iloc[:, 0:start_branchcolumn_idex-2]
-    blank_or_empty_mask = subset_df.applymap(lambda val: pd.isna(val) or str(val).strip() == '')
-    blank_or_empty_cells = blank_or_empty_mask.stack()[blank_or_empty_mask.stack()].index.tolist()
-    for row_idx, col_name in blank_or_empty_cells:
-        col_idx = df.columns.get_loc(col_name) + 1
-        col_letter = helper.index_to_column_letter(col_idx)
-        error_list.append((f"Blank/Invalid (expected text value) in column '{col_letter}' at row {row_idx+DATA_START_ROW +1}.", DATA_START_ROW+ row_idx+1, col_idx, col_letter ,fileId))
-
-    for index, row in df.iterrows():
-        logging.debug("started new row reading-ExcelDataChecks")
-
-        code = row[code_col_index]  # Code data from column A
-        particulars = row[particulars_col_index]  # Particulars data from column B
-        nature = row[nature_col_index]  # Nature data from column D
-        mis_head = row[misheads_col_index]  # MIS head data from column D
-
-        logging.debug(f"Data at row {index+HEADER_ROW} are Code:{code}, particulars:{particulars}, nature:{nature}, mis head:{mis_head}")
-
-        # as per finance team they need to use first letter of each word of partuvlar columns, if code is blank
-        code = ''.join(word[0] for word in particulars.split()) if not isinstance(code, str) or not code else code
-
-        #break the loop as soon as we hit the total row
-        if isinstance(particulars, str) and (particulars.strip().lower() == "total" or code.strip().lower() == "total"): break
-       
-        #validate basis data expected for fields
-        # errors = Validate_Row(code, particulars, nature, mis_head, index+HEADER_ROW, row, df.columns, fileId)
-        # if errors : error_list.append(errors)
-
-        #below three if clause to check if excel value exists in database or not and raise error accordingly
-        if not(any(d.get("head_name") == mis_head for d in MISHead_Collection)):
-            logging.debug(f"MIS Head {mis_head} not exist in system")
-            error_list.append((f"MIS Head {mis_head} in uploade excel at row ({index+DATA_START_ROW-1}) not exist system", DATA_START_ROW+ (index-1), 4, helper.index_to_column_letter(4),fileId))
-
-        if not(any(d.get("particulars") == particulars for d in Particulars_Collection)):
-            logging.debug(f"Particular {particulars} not exist in system")
-            error_list.append((f"Particulars {particulars} in uploade excel at row ({index+DATA_START_ROW-1}) not exist system", DATA_START_ROW+ (index-1), 2, helper.index_to_column_letter(2),fileId))
-
-        if not(any(d.get("code") == code for d in Particulars_Collection)):
-            logging.debug(f"Code {code} not exist in system")
-            error_list.append((f"Code {code} in uploade excel at row ({index+DATA_START_ROW-1}) not exist system", DATA_START_ROW+ (index-1), 1, helper.index_to_column_letter(1),fileId))
-
-        logging.debug(f"Data Validation at row index {index+HEADER_ROW} completed")
-
-    if error_list:
+    error_message = ''
+    try:
         validation_Succeed = False
-        updated_error_list = [("TB_Upload", t[0], t[1], t[2], t[3], t[4], datetime.now()) for t in error_list]
+        error_list=[]
+        logging.debug("Validation of Data Started")
+        
+        '''  follow below steps  -- Check if any of value is non numeric for expected Branch numeric values 
+        1.  # get subset field which falls for branch numeric details
+        2.  # Clean the data: strip any leading/trailing spaces
+        3.  # Convert to numeric, forcing non-numeric values to NaN
+        4.  # Check for any NaN values, which indicate non-numeric entries
+        5.  # If you want to see the rows and columns that contain non-numeric values
+        '''
+        # total_row_index = df.index[df.iloc[:, particulars_col_index].str.lower() == end_row_text_tofind.lower()].tolist()
+        # if not total_row_index :
+        #     total_row_index = df.index[df.iloc[:, code_col_index].str.lower() == end_row_text_tofind.lower()].tolist()
 
-        # Create a new DataFrame from final_data
-        error_df = pd.DataFrame(updated_error_list, columns=['error_process', 'errorMessage', 'rowNumber', 'colNumber', 'colName','fileId','error_time'])
-        engine = create_engine(dbOperations.connect_db_sqlalchemy())
-        try:
-            error_df.to_sql(config.get_env_variable("error_table", "TB_error_log"), con=engine, if_exists='append', index=False)
-            logging.debug("Error Data inserted successfully!")
-        except Exception as e:
-            logging.error(f"Error inserting Error entries: {e}")
-            generic.log_error_to_db_many(updated_error_list)
+        total_row_index = df.index[(df.iloc[:, particulars_col_index].str.lower() == end_row_text_tofind.lower()) | (df.iloc[:, code_col_index].str.lower() == end_row_text_tofind.lower())].tolist()
 
-    else: validation_Succeed = True    
-         
-    logging.debug("Validation of Data Completed")
-    return validation_Succeed
+        subset_df = df.iloc[:total_row_index[0], start_branchcolumn_idex-1:end_branchcolumn_index] if total_row_index else df.iloc[:, start_branchcolumn_idex-1:end_branchcolumn_index]
+        subset_df = subset_df.applymap(lambda x: str(x).strip() if isinstance(x, str) else x)
+        numeric_df = subset_df.apply(pd.to_numeric, errors='coerce')
+        non_numeric_mask = numeric_df.isna()
+        non_numeric_cells = non_numeric_mask.stack()[non_numeric_mask.stack()].index.tolist()
+        for row_idx, col_name in non_numeric_cells:
+            col_idx = df.columns.get_loc(col_name) +1
+            col_letter = helper.index_to_column_letter(col_idx)
+            error_list.append((f"Blank/Invalid (expected Numeric value) in column '{col_letter}' at row {row_idx+DATA_START_ROW +1}.", DATA_START_ROW+ row_idx+1, col_idx, col_letter ,fileId))
+
+        #check for empty field in first 4 columns which are (code, particulars, nature & MIS_Head)
+        subset_df = df.iloc[:total_row_index[0], 0:start_branchcolumn_idex-2] if total_row_index else df.iloc[:, 0:start_branchcolumn_idex-2]
+        blank_or_empty_mask = subset_df.applymap(lambda val: pd.isna(val) or str(val).strip() == '')
+        blank_or_empty_cells = blank_or_empty_mask.stack()[blank_or_empty_mask.stack()].index.tolist()
+        for row_idx, col_name in blank_or_empty_cells:
+            col_idx = df.columns.get_loc(col_name) + 1
+            col_letter = helper.index_to_column_letter(col_idx)
+            error_list.append((f"Blank/Invalid (expected text value) in column '{col_letter}' at row {row_idx+DATA_START_ROW +1}.", DATA_START_ROW+ row_idx+1, col_idx, col_letter ,fileId))
+
+        for index, row in df.iterrows():
+            logging.debug("started new row reading-ExcelDataChecks")
+
+            code = row[code_col_index]  # Code data from column A
+            particulars = row[particulars_col_index]  # Particulars data from column B
+            nature = row[nature_col_index]  # Nature data from column D
+            mis_head = row[misheads_col_index]  # MIS head data from column D
+
+            logging.debug(f"Data at row {index+DATA_START_ROW+1} are Code:{code}, particulars:{particulars}, nature:{nature}, mis head:{mis_head}")
+
+            # as per finance team they need to use first letter of each word of partuvlar columns, if code is blank
+            code = ''.join(word[0] for word in particulars.split()) if not isinstance(code, str) or not code else code
+
+            #break the loop as soon as we hit the total row
+            if isinstance(particulars, str) and (particulars.strip().lower() == "total" or code.strip().lower() == "total"): break
+        
+            #validate basis data expected for fields
+            # errors = Validate_Row(code, particulars, nature, mis_head, index+HEADER_ROW, row, df.columns, fileId)
+            # if errors : error_list.append(errors)
+
+            #below three if clause to check if excel value exists in database or not and raise error accordingly
+            if not(any(d.get("head_name") == mis_head for d in MISHead_Collection)):
+                logging.debug(f"MIS Head {mis_head} not exist in system")
+                error_list.append((f"MIS Head {mis_head} in uploade excel at row ({index+DATA_START_ROW+1}) not exist system", DATA_START_ROW+ (index+1), 4, helper.index_to_column_letter(4),fileId))
+
+            if not(any(d.get("particulars") == particulars for d in Particulars_Collection)):
+                logging.debug(f"Particular {particulars} not exist in system")
+                error_list.append((f"Particulars {particulars} in uploade excel at row ({index+DATA_START_ROW+1}) not exist system", DATA_START_ROW+ (index+1), 2, helper.index_to_column_letter(2),fileId))
+
+            if not(any(d.get("code") == code for d in Particulars_Collection)):
+                logging.debug(f"Code {code} not exist in system")
+                error_list.append((f"Code {code} in uploade excel at row ({index+DATA_START_ROW+1}) not exist system", DATA_START_ROW+ (index+1), 1, helper.index_to_column_letter(1),fileId))
+
+            logging.debug(f"Data Validation at row index {index+DATA_START_ROW+1} completed")
+
+        if error_list:
+            validation_Succeed = False
+            updated_error_list = [("TB_Upload", t[0], t[1], t[2], t[3], t[4], datetime.now()) for t in error_list]
+
+            # Create a new DataFrame from final_data
+            error_df = pd.DataFrame(updated_error_list, columns=['error_process', 'errorMessage', 'rowNumber', 'colNumber', 'colName','fileId','error_time'])
+            engine = create_engine(dbOperations.connect_db_sqlalchemy())
+            try:
+                error_df.to_sql(config.get_env_variable("error_table", "TB_error_log"), con=engine, if_exists='append', index=False)
+                logging.debug("Error Data inserted successfully!")
+                error_message = "Error(s) found while validating data in uploaded file, please see the error list for detail."
+            except Exception as e:
+                logging.error(f"Error inserting Error entries: {e}")
+                error_message = f"Error: File processing failed, Internal server error. Ask Administrator to look into issue."
+                generic.log_error_to_db_many(updated_error_list)
+
+        else: validation_Succeed = True    
+            
+        logging.debug("Validation of Data Completed")
+        return validation_Succeed, error_message
+    except Exception as ex:
+        error_message = "Error: File processing failed, Internal server error. Ask Administrator to look into issue."
+        logging.error(f"Error: Unhandled error occur while validating data (ExcelDataChecks method) in uploaded file. {ex}")
+        return False, error_message
+
 
 # Process the Excel file and insert data into the database
 def process_file(file_path, fileId):
     global MISHead_Collection, Particulars_Collection
-    start_time = time.time()
+    error_message = ''
+    is_success = True
     try:
         load_MIShead_Particulars()
 
+        wb = openpyxl.load_workbook(file_path, read_only=True)
+        # Get visible sheet names that start with 'TB '
+        tb_sheets = [sheet for sheet in wb.sheetnames if not wb[sheet].sheet_state == 'hidden' and sheet.startswith('TB ')]
+
         # Read Excel file starting from the configured header row and actual data row
-        with pd.ExcelFile(file_path, engine='openpyxl') as xls:
-            try:
-                df = pd.read_excel(xls, header=HEADER_ROW, skiprows=range(HEADER_ROW+1, DATA_START_ROW), usecols=range(end_branchcolumn_index))
+        #with pd.ExcelFile(file_path, engine='openpyxl') as xls:
+        try:
+                # Filter sheet names that start with "TB "
+            #tb_sheets = [sheet for sheet in xls.sheet_names if not xls[sheet].sheet_state == 'hidden' and sheet.startswith('TB ')]
+
+            # Check if there is any sheet that matches the criteria
+            if tb_sheets:
+                # Read the first sheet that starts with "TB "
+                #df_tb = pd.read_excel(file_path, sheet_name=tb_sheets[0], engine='openpyxl')
+                df = pd.read_excel(file_path, sheet_name=tb_sheets[0], header=HEADER_ROW, skiprows=range(HEADER_ROW+1, DATA_START_ROW), usecols=range(end_branchcolumn_index))
                 #df = pd.read_excel(file_path, header=HEADER_ROW, skiprows=range(HEADER_ROW+1, DATA_START_ROW), usecols=range(end_branchcolumn_index))
 
                 total_row_index = df.index[(df.iloc[:, particulars_col_index].str.lower() == end_row_text_tofind.lower()) | (df.iloc[:, code_col_index].str.lower() == end_row_text_tofind.lower())].tolist()
@@ -212,18 +243,10 @@ def process_file(file_path, fileId):
                 else:
                     df[code_col] = df.apply(lambda row: ''.join(word[0] for word in row[particulars_col].split()) if pd.isna(row[code_col]) or str(row[code_col]).strip() == '' else row[code_col], axis=1)
 
-                if Validate_MandatoryFields(df.columns, fileId):
-                    end_time = time.time()
-                    elapsed_time = end_time - start_time
-                    logging.warning(f"Validation took -{elapsed_time:.4f} seconds")
-
-                    start_time = time.time();
-                    if(ExcelDataChecks(df, fileId)) and fileId > 0:
-                        end_time = time.time()
-                        elapsed_time = end_time - start_time
-                        logging.warning(f"ExcelDataChecks took -{elapsed_time:.4f} seconds")
-
-                        start_time = time.time();
+                isValidationMandatoryFields_succeed, error_message = Validate_MandatoryFields(df.columns, fileId)
+                if isValidationMandatoryFields_succeed:
+                    isExcelDataChecks_pass, error_message = ExcelDataChecks(df, fileId)
+                    if isExcelDataChecks_pass and fileId > 0:
                         df_columns =['fileId', 'branch_id', 'head_id', 'particulars_id', 'tb_amount'] 
                         final_data=[]
                         for index, row in df.iterrows():
@@ -242,15 +265,26 @@ def process_file(file_path, fileId):
                                     logging.debug(f"Reached at Total row at index {index+DATA_START_ROW-1}, ending file processing.")
                                     break
 
-                                # as per finance team they need to use first letter of each word of partuvlar columns, if code is blank
+                                # as per finance team they need to use first letter of each word of particular columns, if code is blank
                                 if code is None or not isinstance(code, str):
                                     code = ''.join([word[0] for word in particulars.split()])
 
-                                mis_head_id = next((d["head_id"] for d in MISHead_Collection if d.get("head_name") == mis_head), None)
+                                mis_head_id = next((d["head_id"] for d in MISHead_Collection if d.get("head_name").strip().lower() == mis_head.strip().lower()), None)
                                 if mis_head_id: logging.debug(f"Received MIS Head ID {mis_head_id}")
+                                else: 
+                                    error_message = f"MIS Head {mis_head} mentioned in file missing in master list. Please get it approved before uploading new."
+                                    logging.error(error_message)
+                                    is_success = False
+                                    break
+                                    
                                 
-                                particulars_id =  next((d["Id"] for d in Particulars_Collection if d.get("code") == code), None)
-                                if particulars_id: logging.debug(f"Received Particulars ID {mis_head_id}")
+                                particulars_id =  next((d["Id"] for d in Particulars_Collection if d.get("code").strip().lower() == code.strip().lower() and d.get("particulars").lower() == particulars.strip().lower()), None)
+                                if particulars_id: logging.debug(f"Received Particulars ID {particulars_id}")
+                                else: 
+                                    error_message = f"Code {code} & Particular {particulars} combination mentioned in file missing in master list. Please get it approved before uploading new."
+                                    logging.error(error_message)
+                                    is_success = False
+                                    break
 
                                 # Prepare data for each branch column
                                 for branch_col in df.columns[start_branchcolumn_idex - 1:]:
@@ -276,9 +310,12 @@ def process_file(file_path, fileId):
                                     
                             except ValueError as v:
                                 logging.error(f"Value error: {v}")
+                                error_message="some value for branch are not in numeric format, failed to validate. Please upload correct file."
+                                is_success = False
                             except Exception as e:
                                 logging.error(f"Error processing file {file_path}: {e}")        
-                        
+                                error_message = "Error: File processing failed, Internal server error. Ask Administrator to look into issue."
+                                is_success = False
                         
                         # Create a new DataFrame from final_data
                         final_df = pd.DataFrame(final_data, columns=df_columns)
@@ -293,24 +330,29 @@ def process_file(file_path, fileId):
                             logging.debug("Data inserted successfully!")
                         except Exception as e:
                             logging.error(f"Error inserting TB Data: {e}")
+                            error_message = "Error: File processing failed, Internal server error. Ask Administrator to look into issue."
+                            is_success = False
 
-                        elapsed_time = (time.time()) - start_time
-                        logging.warning(f"insert took -{elapsed_time:.4f} seconds")
-            
-                if 'df' in locals() and not df.empty: del df
-            except Exception as e:
-                logging.error(f"Error ocurred while processing file: {e}", exc_info=True)
-            finally:
-                xls.close()
-                logging.debug("Processing completed, excel instance closed")    
+                    if 'df' in locals() and not df.empty: del df
+                else:
+                    logging.error(f"Error ocurred while processing file: No sheet found that starts with 'TB '", exc_info=True)
+                    is_success = False
+        except Exception as e:
+            logging.error(f"Error ocurred while processing file: {e}", exc_info=True)
+            error_message = "Error: File processing failed, Internal server error. Ask Administrator to look into issue."
+            is_success = False
+        finally:
+            #xls.close()
+            wb.close()
+            logging.debug("Processing completed, excel instance closed")    
     except Exception as e:
         logging.error(f"Error processing file {file_path}: {e}")
+        error_message = "Error: File processing failed, Internal server error. Ask Administrator to look into issue."
+        is_success = False
 
-    # End time
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    logging.warning(f"Time taken: {elapsed_time:.4f} seconds")
+    return is_success, error_message
 
+#below method not being used anymore
 def read_excel_and_extract_data(file_path):
     uploadedMonth = 0
     uploadedYear=0
@@ -359,6 +401,7 @@ def read_excel_and_extract_data(file_path):
             return isSuccess, uploadedMonth, uploadedYear
 
 def StartFileProcessing(fileSourcePath,uploadedMonth,uploadedYear):
+    error_message = ''
     is_success= True
     try:
         if fileSourcePath.endswith(tuple(ALLOWED_EXTENSIONS)):
@@ -369,20 +412,22 @@ def StartFileProcessing(fileSourcePath,uploadedMonth,uploadedYear):
             fileId = dbOperations.execute_stored_procedure('dbsp_InsertTBFileMonthYearLink', params, True, False)
             logging.debug(f"Inserted: {fileSourcePath}, Numeric Date: {(uploadedYear, uploadedMonth)}")
             
-            process_file(fileSourcePath, fileId)
+            is_success, error_message = process_file(fileSourcePath, fileId)
         else:
-            logging.error(f"Error, wrong file uploaded, only files with {','.join(ALLOWED_EXTENSIONS)} extentions allowed.")
+            error_message = f"Error, wrong file uploaded, only files with {','.join(ALLOWED_EXTENSIONS)} extentions allowed."
+            logging.error(error_message)
             generic.log_error_to_db(f"Error, wrong file uploaded, only files with {','.join(ALLOWED_EXTENSIONS)} extentions allowed.", 0, 0, 0)
             is_success= False
     except Exception as e:
-        logging.error(f"Error in Initial checks for uploaded files: {e}", exc_info=True)
+        logging.error(f"Error in Start File processing method, error: {e}", exc_info=True)
+        error_message = "File processing failed, Internal server error. PLease check with Administrator for detail."
         is_success= False
     finally:
         error_count = dbOperations.getData_scalar(None, config.get_env_variable("error_table"), "count(1)", "","")
         if error_count > 0 or fileId ==0:
             is_success= False
         fileArchive(fileSourcePath, error_count)      
-        return is_success;
+        return is_success, error_message;
 
 def GetFileDetailsByFileId(fileId):
     is_success= True
