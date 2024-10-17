@@ -34,7 +34,7 @@ def main():
             branches = env_branches.split(',')
         else:
             branches = branch.GetBranchDetails()
-            branches = [branch["branchCode"] for branch in branches]
+            branches = [branch["branchCode"] for branch in branches if branch['status'] == 'Active']
             
         #outlet_list = DBOperations.Get_OuletList()
 
@@ -50,25 +50,17 @@ def main():
         except:
             no_of_days =1
 
-        # Getting the singleton instance
-        db_singleton = DatabaseSingleton()
-        cursor = db_singleton.get_cursor()
-        DBOperations.set_cursor(cursor)
-
         for i in range(no_of_days):
             day = today - timedelta(days=i+1)
             formatted_date = day.strftime('%Y-%m-%d')
             branch_count = 1;
             for outlet in branches:
-
                 try:
+                    # Getting the singleton instance
+                    db_singleton = DatabaseSingleton()
+                    cursor = db_singleton.get_cursor()
+                    DBOperations.set_cursor(cursor)
                     
-                    # #Get Resource details
-                    # params = {'branch': outlet }
-                    # logger.warning(f"Branch Resource Data import starting for parameter {params}")
-                    # BranchResource.GetBranchResource(params)
-                    # logger.warning(f"Branch Resource Data imported for parameter {params} completed successfully")
-
                     if 1==1:
                     #if outlet.OutletCode in {branch["branchCode"] for branch in branches}:  #commented on 21-Aug
                         params = {
@@ -78,16 +70,18 @@ def main():
                             'dayInclusivePayment': True
                         }
                         #data_sales_summary = fetch_data(os.getenv("sales_summary_url"), params)
-                        logger.warning(f"Data import started for {branch_count} at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} for parameter {params}")
+                        logger.error(f"Info : Data import started for {branch_count} at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} for parameter {params}")
                         sales.GetSalesPageforDay(params)
-                        logger.warning(f"Data importe completed at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} for parameter {params} successfully")
+                        logger.error(f"Info : Data importe completed at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")} for parameter {params} successfully")
                         branch_count = branch_count+1
+
                 except Exception as e:
                     logger.error(f"An error occurred: {str(e)}", exc_info=True)
                     raise  # Re-raise the exception after logging    
-                        
+                finally:
+                    db_singleton.close_connection()
     finally:    
-        db_singleton.close_connection()
+        #db_singleton.close_connection()
         logger.warning(f"All data imported for day {formatted_date} completed successfully")
 # Ensure the script runs when executed
 if __name__ == "__main__":

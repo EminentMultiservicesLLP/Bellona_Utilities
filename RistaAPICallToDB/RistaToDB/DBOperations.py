@@ -1,5 +1,6 @@
 import pyodbc
 import os
+import time
 from dotenv import load_dotenv, dotenv_values 
 from Logging_config import setup_logging
 from RistaCalls.GenericClass import executeType as executeType
@@ -25,78 +26,61 @@ def set_cursor(cursor):
     global global_cursor
     global_cursor = cursor
 
+
+def reconnect_and_execute(query, data=None, executeAs=executeType):
+    max_retries = 3
+    retries = 0
+    while retries < max_retries:
+        try:
+            logger.info(f"data object is null for  {executeAs.name}")
+            if data is None :
+                logger.info(f"Executing query without data for {executeAs.name}")
+                global_cursor.execute(query)
+            else:
+                logger.info(f"Executing query with data for {executeAs.name}")
+                global_cursor.execute(query, data)
+            logger.info(f"Query executed for  {executeAs.name}")
+
+            if executeAs == executeType.Scalar: 
+                result = global_cursor.fetchone()
+                if result is None:
+                    logger.info("Query returned no results")
+                    output = None
+                else:
+                    logger.info(f"Query executed and first row, first column value fetched for {executeAs.name}")
+                    output =  result[0]  # Return the scalar value
+            elif executeAs == executeType.NonQuery: 
+                output= global_cursor.rowcount
+                logger.info(f"Query executed and affected row count returned for {executeAs.name}")
+            elif executeAs == executeType.Reader : 
+                rows=global_cursor.fetchall()
+                if not rows:
+                    logger.info("Query returned no results")
+                    output =  []  # Return an empty list if no rows are found
+                else:
+                    output = rows
+                logger.info(f"Query executed and all rows fetched for {executeAs.name}")
+
+            if not data is None : 
+                global_cursor.commit()
+                logger.info(f"Committed change to Database for {executeAs.name}")
+            return output
+        except pyodbc.OperationalError as e:
+            retries += 1
+            logger.error(f"Database OperationalError: {e}. Retrying ({retries}/{max_retries})...")
+            time.sleep(5)  # Delay before retry
+        except pyodbc.Error as e:
+            logger.error(f"Database error occurred in  {executeAs.name}: {str(e)}", exc_info=True)
+            raise  # Re-raise the exception after logging
+
+        except Exception as e:
+            logger.error(f"An error occurred in  {executeAs.name}: {str(e)}", exc_info=True)
+            raise  # Re-raise the exception after logging
+    raise Exception("Failed after multiple retries")
+
 def executeQuery(query, data=None, executeAs=executeType):
-    try:
-        '''
-        logger.info(f"Call received for {executeAs.name}")
-        if os.getenv("db_environment", "").lower() in ["prod", "production", "live"]:
-            connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={os.getenv("db_server")};;DATABASE={os.getenv("database")};;UID={os.getenv("UID")};;PWD={os.getenv("PWD")};;'
-        else:
-            connection_string=f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={os.getenv("db_server")};;DATABASE={os.getenv("database")};;trusted_connection=yes'
-        conn=pyodbc.connect(connection_string)
-        logger.info(f"Connection established for  {executeAs.name}")
-        cursor = conn.cursor()
-        '''
+    return reconnect_and_execute(query, data, executeAs)
 
-        logger.info(f"data object is null for  {executeAs.name}")
-        if data is None :
-            logger.info(f"Executing query without data for {executeAs.name}")
-            global_cursor.execute(query)
-        else:
-            logger.info(f"Executing query with data for {executeAs.name}")
-            global_cursor.execute(query, data)
-        logger.info(f"Query executed for  {executeAs.name}")
-
-        if executeAs == executeType.Scalar: 
-            result = global_cursor.fetchone()
-            if result is None:
-                logger.info("Query returned no results")
-                output = None
-            else:
-                logger.info(f"Query executed and first row, first column value fetched for {executeAs.name}")
-                output =  result[0]  # Return the scalar value
-        elif executeAs == executeType.NonQuery: 
-            output= global_cursor.rowcount
-            logger.info(f"Query executed and affected row count returned for {executeAs.name}")
-        elif executeAs == executeType.Reader : 
-            rows=global_cursor.fetchall()
-            if not rows:
-                logger.info("Query returned no results")
-                output =  []  # Return an empty list if no rows are found
-            else:
-                output = rows
-            logger.info(f"Query executed and all rows fetched for {executeAs.name}")
-
-        if not data is None : 
-            global_cursor.commit()
-            logger.info(f"Committed change to Database for {executeAs.name}")
-        return output
-
-    except pyodbc.Error as e:
-        logger.error(f"Database error occurred in  {executeAs.name}: {str(e)}", exc_info=True)
-        raise  # Re-raise the exception after logging
-
-    except Exception as e:
-        logger.error(f"An error occurred in  {executeAs.name}: {str(e)}", exc_info=True)
-        raise  # Re-raise the exception after logging
-
-    '''
-    finally:
-        # Ensure cursor and connection are closed properly
-        try:
-            if cursor:
-                global_cursor.close()
-                logger.info(f"Cursor closed for  {executeAs.name}")
-        except Exception as e:
-            logger.error(f"Failed to close cursor in  {executeAs.name}: {str(e)}", exc_info=True)
-
-        try:
-            if conn:
-                conn.close()
-                logger.info(f"Connection closed for  {executeAs.name}")
-        except Exception as e:
-            logger.error(f"Failed to close connection in  {executeAs.name}: {str(e)}", exc_info=True)
-    '''
 
 def executeMany(query, data=None):
     try:

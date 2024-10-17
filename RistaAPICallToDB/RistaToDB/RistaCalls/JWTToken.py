@@ -21,13 +21,13 @@ def GenerateToken():
     creds = jwt.algorithms.HMACAlgorithm(jwt.algorithms.get_default_algorithms()['HS256']).prepare_key(key)
 
     current_ticks = int(time.time() +(2 * 3600))
-    expiration = current_ticks + (2 * 3600)
+    expiration = current_ticks + (3 * 3600)
 
     # Define claims
     claims = {
         'iss': api_key,
         'iat': (int(time.time())),  # Current time as a Unix timestamp
-        'exp': int(time.time()) + 3600,
+        'exp': int(time.time()) + (2*3600),
         'jti': str(uuid.uuid4())  # Generate a unique jti using UUID
     }
 
