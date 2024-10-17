@@ -1,0 +1,489 @@
+[
+    {
+        "branchName": "Eight (Lucknow)",
+        "branchCode": "bnlkeght",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Eight-Lucknow",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "09AAACB3262CIZ5"
+    },
+    {
+        "branchName": "Head Office",
+        "branchCode": "HO",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "HO",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet"
+    },
+    {
+        "branchName": "ISHAARA (Lucknow)",
+        "branchCode": "bnlkisha",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Ishaara",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "09AAACB3262CIZ5"
+    },
+    {
+        "branchName": "DOBARAA (Lucknow)",
+        "branchCode": "bnlkdoba",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Dobaara",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "09AAACB3262CIZ5"
+    },
+    {
+        "branchName": "Central Store",
+        "branchCode": "CS",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Ishaara",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "09AAACB3262CIZ5"
+    },
+    {
+        "branchName": "Ishaara_Pune",
+        "branchCode": "ISR-P",
+        "businessName": "Bellona Hospitality",
+        "status": "Inactive",
+        "priceBook": "Testing",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet"
+    },
+    {
+        "branchName": "Dobarra_Pune",
+        "branchCode": "DBR-P",
+        "businessName": "Bellona Hospitality",
+        "status": "Inactive",
+        "priceBook": "Dobarra-Pune",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet"
+    },
+    {
+        "branchName": "Dobaraa(Palladium, Mumbai)",
+        "branchCode": "bnlpdoba",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Dobaraa-Mumbai-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Julius (Palladium, Mumbai)",
+        "branchCode": "bnlpjuls",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Julius",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Fyole (Palladium, Mumbai)",
+        "branchCode": "bnlpfyle",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Fyole",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Eight (Palladium, Mumbai)",
+        "branchCode": "bnlpeght",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Eight-Mumbai-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Poult (Palladium, Mumbai)",
+        "branchCode": "bnlppout",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Poult-Mumbai-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Legume (Palladium, Mumbai)",
+        "branchCode": "bnlplegm",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Legume",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Cha (Palladium, Mumbai)",
+        "branchCode": "bnlpchcf",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Cha-Mumbai-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Caffe Allora (Palladium, Mumbai)",
+        "branchCode": "bnlpalra",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Caffe Allora-Mumbai-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Caffe Allora (Palladium, Ahemdabad)",
+        "branchCode": "bnahalra",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Caffe Allora-Ahemdbad-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "24AAACB3262C1ZD"
+    },
+    {
+        "branchName": "Ishaara (Palladium, Ahemdabad)",
+        "branchCode": "bnahisha",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Ishaara-Ahemdabad-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "24AAACB3262C1ZD"
+    },
+    {
+        "branchName": "Poult (Palladium, Ahemdabad)",
+        "branchCode": "bnahpout",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Poult-Ahemdabad-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "24AAACB3262C1ZD"
+    },
+    {
+        "branchName": "Cha\t(Palladium, Ahemdabad)",
+        "branchCode": "bnahchcf",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Cha-Ahemdabad-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "24AAACB3262C1ZD"
+    },
+    {
+        "branchName": "Ishaara (PMC Blr)",
+        "branchCode": "bnbgisha",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Ishaara-PMC-BLR",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Dobaara(PMC Blr)",
+        "branchCode": "bnbgdoba",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Dobaraa-PMC-BLR",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Cha Cha Cha\t(PMC Blr)",
+        "branchCode": "bnbgchch",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Cha-PMC-BLR",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Caffe Allora (PMC Blr)",
+        "branchCode": "bnbgalra",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Caffe Allora-PMC-BLR",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Ishaara (PMC Pune)",
+        "branchCode": "bnvnisha",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Ishaara-PMC-Pune",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Dobaraa(PMC Pune)",
+        "branchCode": "bnvndoba",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Dobaraa-PMC-Pune",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Cha Viman Nagar",
+        "branchCode": "bnvnchch",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Cha-PMC-Pune",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Caffe Allora (PMC Pune)",
+        "branchCode": "bnvnalra",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Caffe Allora-PMC-Pune",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Ishaara (PMC Kurla)",
+        "branchCode": "bnkrisha",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Ishaara-PMC-Kurla",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Dobaraa by Bar Bar (PMC Kurla)",
+        "branchCode": "bnkrdobb",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Dobaraa-PMC-Kurla",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Central Store, Bangalore",
+        "branchCode": "CSB",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Caffe Allora-PMC-BLR",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Central Store, Palladium Mumbai",
+        "branchCode": "CSPM",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Eight-Mumbai-PLD",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Ishaara-MOA(Blr)",
+        "branchCode": "bnmaisha",
+        "businessName": "BELLONA HOSPITALITY SERVICES LIMITED",
+        "status": "Active",
+        "priceBook": "Ishaara_MOA(BLR)",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Central Store MOA, Bangalore",
+        "branchCode": "CSMOAB",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Caffe Allora-PMC-BLR",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Eight (MOA Blr)",
+        "branchCode": "bnmaeght",
+        "businessName": "BELLONA HOSPITALITY SERVICES LIMITED",
+        "status": "Active",
+        "priceBook": "Eight_MOA",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Dobaraa (MOA Blr)",
+        "branchCode": "bnmadoba_inactive",
+        "businessName": "BELLONA HOSPITALITY SERVICES LIMITED",
+        "status": "Inactive",
+        "priceBook": "Ishaara_MOA(BLR)",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Cafe Allora (MOA Blr)",
+        "branchCode": "bnmacafe",
+        "businessName": "BELLONA HOSPITALITY SERVICES LIMITED",
+        "status": "Active",
+        "priceBook": "Cafe Allora MOA",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "CHA – MALL OF ASIA",
+        "branchCode": "bnmachcf",
+        "businessName": "BELLONA HOSPITALITY SERVICES LIMITED",
+        "status": "Active",
+        "priceBook": "Cha_MOA Blr",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Fyole Wakad",
+        "branchCode": "bnwkfyle",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Fyole Wakad",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Central Store MOM, Pune",
+        "branchCode": "CSMOM",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Fyole",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Allora Wakad",
+        "branchCode": "bnwkcafe",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Caffe Allora-Wakad",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Eight Wakad",
+        "branchCode": "bnwkeght",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Eight-Wakad",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Poult Wakad",
+        "branchCode": "bnwkpout",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Poult-Wakad",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Ishaara Wakad",
+        "branchCode": "bnwkisha",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "Ishaara-Wakkad(MOM)",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "27AAACB3262C1Z7"
+    },
+    {
+        "branchName": "Fyole-MOA(Blr) UG Floor",
+        "branchCode": "bnmafylg",
+        "businessName": "BELLONA HOSPITALITY SERVICES LIMITED",
+        "status": "Active",
+        "priceBook": "Fyole-MOA(Blr) UG Floor",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Fyole - MOA(Blr) 2F",
+        "branchCode": "bnmafyls",
+        "businessName": "BELLONA HOSPITALITY SERVICES LIMITED",
+        "status": "Active",
+        "priceBook": "Fyole - MOA(Blr) 2F",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "Dobaraa - MOA(Blr)",
+        "branchCode": "bnmadoba",
+        "businessName": "BELLONA HOSPITALITY SERVICES LIMITED",
+        "status": "Active",
+        "priceBook": "Dobaara - MOA(Blr)",
+        "taxArea": "Banglore",
+        "branchLabels": "Outlet",
+        "taxId": "29AAACB3262C2Z2"
+    },
+    {
+        "branchName": "CS, PMC PUNE",
+        "branchCode": "PMCP",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "HO",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "09AAACB3262CIZ5"
+    },
+    {
+        "branchName": "CS, PMC MUMBAI",
+        "branchCode": "PMCM",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "HO",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "09AAACB3262CIZ5"
+    },
+    {
+        "branchName": "CS, AHMEDABAD",
+        "branchCode": "CSA",
+        "businessName": "Bellona Hospitality",
+        "status": "Active",
+        "priceBook": "HO",
+        "taxArea": "Uttar Pradesh",
+        "branchLabels": "Outlet",
+        "taxId": "09AAACB3262CIZ5"
+    }
+]
