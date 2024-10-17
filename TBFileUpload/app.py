@@ -11,26 +11,26 @@ WATCH_DIRECTORY = config.get_env_variable('WATCH_DIRECTORY', "")
 def start_FileProcessing():
     try:
         fileId, file_path, uploadedMonth,uploadedYear = ReadRequestDetails(request)
-        if not fileId is None and fileId > 0:
-            file_path,uploadedMonth,uploadedYear = fileprocess.GetFileDetailsByFileId(fileId)
-            if not os.path.exists(file_path):
-                logging.debug("Error: File not found, error send with 404 status code")
-                return jsonify({"ResponsePhrase": "Failed", "value":"File not found"}), 404
+        # if not fileId is None and fileId > 0:
+        #     file_path,uploadedMonth,uploadedYear = fileprocess.GetFileDetailsByFileId(fileId)
+        #     if not os.path.exists(file_path):
+        #         logging.debug("Error: File not found, error send with 404 status code")
+        #         return jsonify({"ResponsePhrase": "Failed", "value":"File not found"}), 404
 
-        else:
-             # Check if the file exists
-            if not os.path.exists(file_path):
-                logging.debug("Error: File not found, error send with 404 status code")
-                return jsonify({"ResponsePhrase": "Failed", "value":"File not found"}), 404
-            
-            status = fileprocess.StartFileProcessing(file_path, uploadedMonth, uploadedYear)
+        # else:
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            logging.debug("Error: File not found, error send with 404 status code")
+            return jsonify({"ResponsePhrase": "Failed", "value":"File not found"}), 404
+        
+        status, error_message = fileprocess.StartFileProcessing(file_path, uploadedMonth, uploadedYear)
             
         if status:
             logging.debug(f"File processed successfully for Month {uploadedMonth} and Year {uploadedYear}")
             return jsonify({"ResponsePhrase": "Success", "value":f"File processed successfully for Month {uploadedMonth} and Year {uploadedYear}"}), 200
         
         logging.debug("Error: File processing failed, please see the error(s)")
-        return jsonify({"ResponsePhrase": "Failed", "value":"File processing failed, please see the error(s)"}), 422
+        return jsonify({"ResponsePhrase": "Failed", "value":f"{error_message}"}), 422
     except Exception as e:
         logging.debug(f"Error: File processing failed, Internal server error. Ask Administrator to look into issue. Error:{e}")
         return jsonify({"ResponsePhrase": "Failed", "value":"File processing failed, Internal server error. Ask Administrator to look into issue"}), 500
