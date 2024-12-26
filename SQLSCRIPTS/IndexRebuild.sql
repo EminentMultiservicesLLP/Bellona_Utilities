@@ -1,0 +1,13 @@
+USE BELLONA_LIVE
+GO
+
+Create proc ReBuild_RistaTables as
+begin
+ALTER INDEX ALL ON Rista_SaleInvoices REORGANIZE;
+ALTER INDEX ALL ON SalesItems REORGANIZE;
+ALTER INDEX ALL ON Rista_SalePayments REORGANIZE;
+ALTER INDEX ALL ON Rista_SaleSourceInfo REORGANIZE;
+ALTER INDEX ALL ON Rista_SaleInvoiceItems REORGANIZE;
+ALTER INDEX ALL ON Rista_SaleDelivery REORGANIZE;
+end
+go

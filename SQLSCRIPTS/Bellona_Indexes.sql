@@ -10,6 +10,14 @@ BEGIN
 END
 GO
 
+IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='NCI_SALEBUDGET_ID_DATE' AND object_id = OBJECT_ID('[dbo].[Transaction_SalesBudgetDetails]'))
+BEGIN
+	CREATE NONCLUSTERED INDEX [NCI_SALEBUDGET_ID_DATE]
+	ON [dbo].[Transaction_SalesBudgetDetails] ([SalesBudgetID],[Date])
+	INCLUDE ([SalesCategoryID])
+END
+GO
+
 
 IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='INDX_InvoiceId' AND object_id = OBJECT_ID('[dbo].[Rista_SaleItems]'))
 BEGIN
@@ -47,4 +55,21 @@ BEGIN
 	CREATE NONCLUSTERED INDEX [INDX_FINYEAR_WEEKNO]
 	ON [dbo].[Transaction_DateRange] ([FinancialYear],[WeekNo])
 END
+GO
+
+IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='inx_Link_Menu_Outlet_outletid' AND object_id = OBJECT_ID('[dbo].[Link_Menu_Outlet]'))
+BEGIN
+	CREATE NONCLUSTERED INDEX [inx_Link_Menu_Outlet_outletid]
+	ON [dbo].[Link_Menu_Outlet] ([OutletId])
+	INCLUDE ([AccessId],[MenuId])
+END
+go
+
+IF NOT EXISTS (SELECT *  FROM sys.indexes  WHERE name='Transaction_DateRange_date' AND object_id = OBJECT_ID('[Transaction_DateRange]'))
+BEGIN
+	CREATE NONCLUSTERED INDEX [Transaction_DateRange_date]
+	ON [dbo].[Transaction_DateRange] ([Date])
+	INCLUDE ([WeekNo])
+END
+
 GO

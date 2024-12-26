@@ -40,7 +40,13 @@ left join Rista_SaleItems b (nolock) on a.InvoiceID = b.InvoiceID
 left join Rista_SaleItemDiscounts b1 (nolock) on a.InvoiceID = b.InvoiceID and b.itemid = b1.itemid
 left join Rista_SaleItemOptions b2 (nolock) on a.InvoiceID = b.InvoiceID and b.itemid = b2.itemid
 left join Rista_SaleItemTaxes b3 (nolock) on a.InvoiceID = b.InvoiceID and b.itemid = b3.itemid
-where a.InvoiceDay > '2024-08-31' --and a.InvoiceID = 
+where a.InvoiceDay > '2024-03-31' --and a.InvoiceID = 
 group by a.invoiceday, a.branchcode
 order by a.invoiceday, a.branchcode
 
+
+/*
+
+SELECT * FROM Rista_SaleInvoices WHERE branchCode = 'bnahpout' AND InvoiceDay = '2024-10-08'
+SELECT * FROM Rista_SalePayments where InvoiceID = 157157
+*/

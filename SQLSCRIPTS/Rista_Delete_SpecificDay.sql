@@ -60,4 +60,7 @@ DELETE A FROM Rista_SaleItems A
 INNER JOIN Rista_SaleInvoices B ON A.InvoiceID = B.InvoiceID AND B.InvoiceDay = @INVOICEDAY;
 
 
+DELETE  A FROM dbo.Rista_SaleResource A
+INNER JOIN Rista_SaleInvoices B ON A.InvoiceID = B.InvoiceID AND B.InvoiceDay  = @INVOICEDAY;
+
 DELETE FROM Rista_SaleInvoices WHERE InvoiceDay = @INVOICEDAY;

@@ -3,9 +3,9 @@ GO
 
 /*
 DECLARE @Startdt datetime, @Enddt  datetime, @branchCode varchar(20) = null, @clusterId int = 0
-SET @Startdt ='2024-09-14'
-SET @Enddt = '2024-09-14'  
-SET @branchCode  = 'bnahisha'
+SET @Startdt ='2024-10-01'
+SET @Enddt = '2024-10-01'  
+SET @branchCode  = NULL
 SET @clusterId  = 0
 
 EXEC [dbo].[dbsp_GetDSR_Summary] @Startdt = @Startdt, @Enddt=@Enddt, @branchCode= @branchCode
